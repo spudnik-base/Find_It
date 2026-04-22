@@ -1,4 +1,4 @@
-// exporter.js — PDF export via window.print() and PNG-sheet download.
+// exporter.js: PDF export via window.print() and PNG-sheet download.
 //
 // Flow (brief Ch 7):
 //   1. Build the full deck (projective -> assign symbols -> layout each card).
@@ -12,6 +12,45 @@
   'use strict';
 
   const PRINT_CONTAINER_ID = 'findit-print-container';
+
+  // Print layout presets (all mm, A4 portrait):
+  //   compact  -> 3x3 of 55mm (9 per page; traditional Dobble size)
+  //   standard -> 2x3 of 68mm (6 per page; easier to read)
+  //   large    -> 2x2 of 90mm (4 per page; trading-card size)
+  const PRINT_SIZES = {
+    compact:  { label: 'Compact',  cardMM: 55, cols: 3, rows: 3, gutter: 5 },
+    standard: { label: 'Standard', cardMM: 68, cols: 2, rows: 3, gutter: 6 },
+    large:    { label: 'Large',    cardMM: 90, cols: 2, rows: 2, gutter: 8 },
+  };
+
+  function printLayout(size) {
+    return PRINT_SIZES[size] || PRINT_SIZES.standard;
+  }
+
+  // ── lazy loader for jsPDF ──────────────────────────────────────────────
+  // We only pull the ~100KB library when the user clicks the PDF download
+  // button, so initial page load stays dependency-free.
+  const JSPDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  let jsPDFLoader = null;
+  function ensureJsPDF() {
+    if (jsPDFLoader) return jsPDFLoader;
+    jsPDFLoader = new Promise((resolve, reject) => {
+      if (window.jspdf && window.jspdf.jsPDF) {
+        resolve(window.jspdf.jsPDF);
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = JSPDF_URL;
+      s.async = true;
+      s.onload = () => {
+        if (window.jspdf && window.jspdf.jsPDF) resolve(window.jspdf.jsPDF);
+        else reject(new Error('jsPDF failed to initialise'));
+      };
+      s.onerror = () => reject(new Error('Failed to load jsPDF from ' + JSPDF_URL));
+      document.head.appendChild(s);
+    });
+    return jsPDFLoader;
+  }
 
   async function buildDeckForExport() {
     const content = FindIt.content.get();
@@ -46,20 +85,29 @@
     if (existing) existing.remove();
   }
 
-  function buildPrintGrid(dataURLs) {
+  function buildPrintGrid(dataURLs, size) {
     clearPrintContainer();
+    const L = printLayout(size);
+    const perPage = L.cols * L.rows;
+
     const container = document.createElement('div');
     container.id = PRINT_CONTAINER_ID;
 
-    // Chunk into pages of 9.
-    for (let i = 0; i < dataURLs.length; i += 9) {
+    for (let i = 0; i < dataURLs.length; i += perPage) {
       const page = document.createElement('div');
       page.className = 'print-page';
       const grid = document.createElement('div');
       grid.className = 'print-grid';
-      for (let j = i; j < Math.min(i + 9, dataURLs.length); j++) {
+      // Inline styles override the @media print defaults so the grid
+      // adapts to the chosen n (e.g. 2x3 of 68mm for n=8).
+      grid.style.gridTemplateColumns = 'repeat(' + L.cols + ', ' + L.cardMM + 'mm)';
+      grid.style.gridAutoRows = L.cardMM + 'mm';
+      grid.style.gap = L.gutter + 'mm';
+      for (let j = i; j < Math.min(i + perPage, dataURLs.length); j++) {
         const wrap = document.createElement('div');
         wrap.className = 'print-card-wrap';
+        wrap.style.width = L.cardMM + 'mm';
+        wrap.style.height = L.cardMM + 'mm';
         const img = document.createElement('img');
         img.src = dataURLs[j];
         img.alt = 'card ' + (j + 1);
@@ -81,7 +129,7 @@
           ? Promise.resolve()
           : new Promise((resolve) => {
               img.onload = resolve;
-              img.onerror = resolve; // fail open — still print
+              img.onerror = resolve; // fail open; still print
             })
       )
     );
@@ -91,13 +139,59 @@
     const o = opts || {};
     const { deck, sizeVariance, symbolsPerCard } = await buildDeckForExport();
     const dataURLs = await renderAllCards(deck, sizeVariance, o.shape, symbolsPerCard);
-    const container = buildPrintGrid(dataURLs);
+    const container = buildPrintGrid(dataURLs, o.size);
     await waitForImages(container);
     // Defer slightly so the browser has painted the grid before print.
     await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 50)));
     window.print();
     setTimeout(clearPrintContainer, 2000);
-    return { cards: deck.cards.length };
+    return { cards: deck.cards.length, size: (printLayout(o.size)).label };
+  }
+
+  // Instant PDF download via jsPDF (lazy-loaded). Lays the cards out on
+  // A4 portrait using the user's chosen size preset and triggers a browser
+  // download with no print dialog.
+  async function downloadPDF(opts) {
+    const o = opts || {};
+    const JsPDF = await ensureJsPDF();
+    const { deck, sizeVariance, symbolsPerCard } = await buildDeckForExport();
+    const dataURLs = await renderAllCards(deck, sizeVariance, o.shape, symbolsPerCard);
+
+    const doc = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+    const pageW = 210, pageH = 297;
+    const layout = printLayout(o.size);
+    const cardMM = layout.cardMM;
+    const gutter = layout.gutter;
+    const cols = layout.cols, rows = layout.rows;
+    const gridW = cols * cardMM + (cols - 1) * gutter;
+    const gridH = rows * cardMM + (rows - 1) * gutter;
+    const marginX = (pageW - gridW) / 2;
+    const marginY = Math.max(15, (pageH - gridH) / 2);
+    const cardsPerPage = cols * rows;
+
+    for (let i = 0; i < dataURLs.length; i++) {
+      const slot = i % cardsPerPage;
+      if (i > 0 && slot === 0) doc.addPage();
+      const col = slot % cols;
+      const row = Math.floor(slot / cols);
+      const x = marginX + col * (cardMM + gutter);
+      const y = marginY + row * (cardMM + gutter);
+      doc.addImage(dataURLs[i], 'PNG', x, y, cardMM, cardMM, undefined, 'FAST');
+
+      // Subtle corner cut guides (0.1mm grey) at each card's top-left and
+      // bottom-right so teachers can trim cleanly.
+      doc.setDrawColor(200);
+      doc.setLineWidth(0.1);
+      doc.line(x - 1, y, x + 2, y);
+      doc.line(x, y - 1, x, y + 2);
+      doc.line(x + cardMM + 1, y + cardMM, x + cardMM - 2, y + cardMM);
+      doc.line(x + cardMM, y + cardMM + 1, x + cardMM, y + cardMM - 2);
+    }
+
+    const raw = FindIt.content.get().setName || 'find-it';
+    const name = raw.replace(/[^a-z0-9-_]+/gi, '_').toLowerCase() || 'find-it';
+    doc.save(name + '.pdf');
+    return { cards: deck.cards.length, filename: name + '.pdf' };
   }
 
   async function downloadPNGSheet(opts) {
@@ -192,7 +286,10 @@
 
   window.FindIt = window.FindIt || {};
   window.FindIt.exporter = {
+    PRINT_SIZES,
+    printLayout,
     printDeck,
+    downloadPDF,
     downloadPNGSheet,
     makeShareLink,
     loadShareLinkFromHash,

@@ -1,8 +1,8 @@
-// layout.js — card layout engine.
+// layout.js: card layout engine.
 //
 // Three-pass placement as per brief Ch 4:
-//   1. measurePass — compute half-width/height for each symbol.
-//   2. placePass   — try up to 500 random positions per symbol,
+//   1. measurePass: compute half-width/height for each symbol.
+//   2. placePass:   try up to 500 random positions per symbol,
 //                    testing circle boundary and SAT overlap against
 //                    already-placed OBBs.
 //   3. (drawing is done by renderer.js)
@@ -12,20 +12,22 @@
 (function () {
   'use strict';
 
-  const WORD_PADDING = 8;       // px padding around measured text box
-  const OBB_GAP = 5;            // px separation between OBBs
+  const WORD_PADDING_X = 24;    // px horizontal padding (inside pill)
+  const WORD_PADDING_Y = 14;    // px vertical padding (inside pill)
+  const WORD_PADDING = WORD_PADDING_Y;  // legacy alias (unused externally)
+  const OBB_GAP = 5;            // px separation between symbols on the card
   const BORDER = 14;            // px inset from the card boundary
   const MAX_ATTEMPTS = 500;
 
   // Base symbol sizes (measured for canvas 640 / radius 320) chosen so
-  // that the full n symbols can be packed without the layout engine
-  // dropping any. Denser cards (n = 8) use smaller symbols than sparse
-  // cards (n = 4).
+  // short labels stay legible when the card is scaled down to ~220px on
+  // screen, while still leaving room for up to 8 symbols on a single card.
+  // Denser cards use smaller bases than sparse ones.
   function baseSizesForN(n) {
     const v = Number(n) || 6;
-    if (v <= 4) return { wordBase: 40, imageBase: 150 };
-    if (v <= 6) return { wordBase: 32, imageBase: 120 };
-    return       { wordBase: 24, imageBase: 90 };
+    if (v <= 4) return { wordBase: 52, imageBase: 170 };
+    if (v <= 6) return { wordBase: 44, imageBase: 135 };
+    return       { wordBase: 34, imageBase: 100 };
   }
 
   // ── sub/sup rich-text parsing ──────────────────────────────────────────
@@ -55,6 +57,28 @@
 
   const SUB_SCALE = 0.62;
   const SUB_SHIFT_FRAC = 0.22;  // baseline offset as fraction of base size
+
+  function escapeHTML(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // Render a label string (possibly with ~sub~ or ^sup^ tokens) to safe HTML.
+  // Non-rich labels pass through with HTML-escaping.
+  function richToHTML(text) {
+    const segs = parseRich(text);
+    if (!segs) return escapeHTML(text);
+    return segs.map((s) => {
+      const safe = escapeHTML(s.text);
+      if (s.style === 'sub') return '<sub>' + safe + '</sub>';
+      if (s.style === 'sup') return '<sup>' + safe + '</sup>';
+      return safe;
+    }).join('');
+  }
 
   // ── size assignment (brief Ch 4) ───────────────────────────────────────
   function randSize(baseMin, baseMax) {
@@ -128,6 +152,19 @@
     ctx.font = wordFont;
 
     const measured = symbols.map((sym) => {
+      if (sym.isBlank) {
+        // Placeholder for "this pack has fewer symbols than the plane
+        // needs". Render a modest circle so it's visible but obviously
+        // not real content. Size is tame so it doesn't crowd the card.
+        const size = imageBase * 0.45;
+        return {
+          sym,
+          type: 'blank',
+          size,
+          hw: size / 2,
+          hh: size / 2,
+        };
+      }
       if (sym.type === 'image') {
         const size = randSize(imageBase, imageBase * sizeVariance);
         return {
@@ -170,8 +207,8 @@
           size,
           ascent: maxAscent,
           descent: maxDescent,
-          hw: totalW / 2 + WORD_PADDING,
-          hh: (maxAscent + maxDescent) / 2 + WORD_PADDING,
+          hw: totalW / 2 + WORD_PADDING_X,
+          hh: (maxAscent + maxDescent) / 2 + WORD_PADDING_Y,
           richWidth: totalW,
         };
       }
@@ -190,8 +227,8 @@
         size,
         ascent,
         descent,
-        hw: textW / 2 + WORD_PADDING,
-        hh: textH / 2 + WORD_PADDING,
+        hw: textW / 2 + WORD_PADDING_X,
+        hh: textH / 2 + WORD_PADDING_Y,
       };
     });
     ctx.restore();
@@ -263,6 +300,8 @@
     SUB_SHIFT_FRAC,
     baseSizesForN,
     parseRich,
+    richToHTML,
+    escapeHTML,
     randSize,
     obbCorners,
     obbOverlap,

@@ -1,4 +1,4 @@
-// deck.js — maps content symbols onto projective-plane indices to form a deck.
+// deck.js: maps content symbols onto projective-plane indices to form a deck.
 //
 // A "deck" is an array of cards, each card being an array of content symbol
 // objects (type/value/display) plus a deckIndex for rotation of background

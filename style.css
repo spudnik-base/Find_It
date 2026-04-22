@@ -1,4 +1,4 @@
-/* FIND IT — global styles + print stylesheet.
+/* FIND IT: global styles + print stylesheet.
    Palette reused from docs/find_it.html for visual consistency. */
 
 :root {
@@ -53,9 +53,11 @@ body {
 }
 
 .toolbar-logo span {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 0.9rem;
   letter-spacing: 1px;
+  text-shadow: none;
+  margin-left: 4px;
 }
 
 .toolbar-actions { display: flex; gap: 12px; align-items: center; }
@@ -112,6 +114,21 @@ body {
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
   transform: translate(-1px, -1px);
 }
+.btn-pdf[disabled] { opacity: 0.6; cursor: progress; }
+
+.btn-print {
+  background: var(--yellow);
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  font-size: 0.95rem;
+  padding: 6px 16px;
+}
+.btn-print:hover {
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  transform: translate(-1px, -1px);
+}
+.btn-print[disabled] { opacity: 0.6; cursor: progress; }
 
 .panel .btn-ghost {
   color: var(--ink);
@@ -139,8 +156,8 @@ body {
   margin-bottom: 6px;
 }
 .intro-nudge {
-  font-family: 'Caveat', cursive;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--ink);
 }
 .intro-close {
@@ -322,7 +339,7 @@ body {
   border: 2px solid var(--ink);
 }
 .chipgrid:empty::before {
-  content: 'No symbols yet — add some above.';
+  content: 'No symbols yet. Add some above.';
   color: #888;
   font-style: italic;
   align-self: center;
@@ -350,7 +367,17 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 180px;
+  font-variant-numeric: tabular-nums;
 }
+.chip .chip-value sub,
+.chip .chip-value sup,
+.chip .chip-display sub,
+.chip .chip-display sup {
+  font-size: 0.72em;
+  line-height: 1;
+}
+.chip .chip-value sub, .chip .chip-display sub { vertical-align: -0.25em; }
+.chip .chip-value sup, .chip .chip-display sup { vertical-align: 0.45em; }
 .chip .chip-display {
   color: var(--red);
   font-size: 0.75rem;
@@ -472,6 +499,36 @@ input[type="range"] {
   display: inline-block;
 }
 
+/* ── Placeholder warning (Configure panel) ── */
+.blank-warning {
+  margin-top: 14px;
+  padding: 10px 14px 10px 10px;
+  background: #fff0d6;
+  border: 2px solid var(--red);
+  box-shadow: 3px 3px 0 var(--ink);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.blank-warning[hidden] { display: none; }
+.blank-warning .warn-icon {
+  flex: 0 0 28px;
+  height: 28px;
+  width: 28px;
+  background: var(--red);
+  color: white;
+  font-size: 1.05rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ink);
+}
+.blank-warning b { background: var(--yellow); padding: 0 4px; }
+
 /* ── Preview grid ── */
 .preview-grid {
   display: grid;
@@ -529,6 +586,86 @@ input[type="range"] {
 }
 .match-badge.ok { background: var(--green); color: white; }
 .match-badge.bad { background: var(--red); color: white; }
+
+/* ── Branded confirm modal ── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 13, 13, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 300;
+  animation: fade-in 0.12s ease-out;
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: var(--paper);
+  border: var(--border);
+  box-shadow: var(--shadow-lg);
+  max-width: 440px;
+  width: 100%;
+  padding: 22px 24px 18px;
+  position: relative;
+  animation: modal-in 0.15s ease-out;
+}
+@keyframes modal-in {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.modal::before {
+  content: attr(data-tag);
+  position: absolute;
+  top: -14px;
+  left: 14px;
+  background: var(--ink);
+  color: var(--yellow);
+  font-family: 'Bangers', cursive;
+  letter-spacing: 2px;
+  font-size: 0.78rem;
+  padding: 3px 12px;
+  border: 2px solid var(--ink);
+}
+.modal.danger::before { background: var(--red); color: white; }
+
+.modal h3 {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 2px;
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+.modal p {
+  font-size: 0.98rem;
+  line-height: 1.5;
+  margin-bottom: 18px;
+  color: var(--ink);
+}
+.modal p b { background: var(--yellow); padding: 0 4px; }
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.modal-actions .btn { font-size: 1rem; padding: 8px 18px; }
+.modal .btn-danger {
+  background: var(--red);
+  color: white;
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: 'Bangers', cursive;
+  letter-spacing: 1.5px;
+}
+.modal .btn-danger:hover {
+  box-shadow: 4px 4px 0 var(--ink);
+  transform: translate(-1px, -1px);
+}
 
 /* ── Toast ── */
 .toast-stack {
@@ -618,7 +755,7 @@ input[type="range"] {
     display: block;
   }
 
-  /* Subtle cut guides — corner marks on each card. */
+  /* Subtle cut guides: corner marks on each card. */
   .print-card-wrap::before,
   .print-card-wrap::after {
     content: '';

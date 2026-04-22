@@ -11,10 +11,11 @@
 </head>
 <body>
   <div class="toolbar">
-    <div class="toolbar-logo">FIND IT <span>— card generator</span></div>
+    <div class="toolbar-logo">FIND IT <span>· card generator</span></div>
     <div class="toolbar-actions">
       <span class="save-status saved" id="saveStatus">&#10003; saved</span>
-      <button class="btn btn-pdf" id="toolbarPrintBtn" type="button">&#9113; PDF</button>
+      <button class="btn btn-print" id="toolbarPrintBtn" type="button">&#9113; Print</button>
+      <button class="btn btn-pdf" id="toolbarPdfBtn" type="button">&#8595; PDF</button>
       <button class="btn btn-ghost" id="resetBtn" type="button">&#8634; reset</button>
     </div>
   </div>
@@ -24,7 +25,7 @@
     <section class="intro" id="intro">
       <div class="intro-content">
         <p class="intro-lead">
-          Drop your own words or images and FIND IT builds a <b>Dobble-style</b> deck where every pair of cards shares <em>exactly one</em> symbol — print-ready in seconds.
+          Drop your own words or images and FIND IT builds a <b>matching-card</b> deck where every pair of cards shares <em>exactly one</em> symbol. Print-ready in seconds.
         </p>
         <p class="intro-nudge">
           New here? Pick a <b>Starter pack</b> below for a one-click demo, or start typing your own terms.
@@ -42,12 +43,14 @@
         <select id="packSelect">
           <option value="">(choose a pack…)</option>
         </select>
-        <button class="btn btn-primary" id="loadPackBtn" type="button">Load</button>
+        <button class="btn btn-primary" id="addPackBtn" type="button">+ Add</button>
+        <button class="btn btn-ghost" id="replacePackBtn" type="button">Replace</button>
       </div>
+      <p class="hint">Mix and match: <b>Add</b> appends a pack to what you have. <b>Replace</b> starts fresh with just that pack.</p>
 
       <label class="field">
         <span class="field-label">Subject / set name</span>
-        <input id="setName" type="text" placeholder="e.g. IB Biology — Biological Molecules">
+        <input id="setName" type="text" placeholder="e.g. IB Biology, Biological Molecules">
       </label>
 
       <div class="input-tabs" role="tablist">
@@ -78,7 +81,7 @@
 
       <div class="tab-panel" data-panel="images" hidden>
         <div class="dropzone" id="imageDrop" tabindex="0">
-          <p><b>Drop images here</b> — or <label for="imageFile" class="link">browse…</label></p>
+          <p><b>Drop images here</b>, or <label for="imageFile" class="link">browse…</label></p>
           <input id="imageFile" type="file" accept="image/*" multiple hidden>
           <p class="hint">Stored locally as base64. Many images can fill your browser's storage fast.</p>
         </div>
@@ -135,7 +138,19 @@
         </div>
       </div>
 
+      <div class="field">
+        <span class="field-label">Print / PDF size</span>
+        <div class="segmented" role="radiogroup" aria-label="print size">
+          <button class="seg" data-size="compact" role="radio" type="button">compact</button>
+          <button class="seg" data-size="standard" role="radio" type="button">standard</button>
+          <button class="seg" data-size="large" role="radio" type="button">large</button>
+        </div>
+        <p class="hint" id="sizeHint"></p>
+      </div>
+
       <div class="stats" id="stats"></div>
+
+      <div class="blank-warning" id="blankWarning" role="alert" hidden></div>
     </section>
 
     <!-- Screen 3: Preview -->
@@ -154,10 +169,10 @@
       <div class="drops-bar" id="dropsBar" hidden></div>
     </section>
 
-    <!-- Screen 4: Export (digital only — Print/PDF lives in the toolbar) -->
+    <!-- Screen 4: Export (digital only; Print/PDF lives in the toolbar) -->
     <section class="panel" id="screen-export">
       <h2>Digital exports</h2>
-      <p class="hint">For printable output, use the <b>PDF</b> button in the top bar.</p>
+      <p class="hint">For a printable deck, use <b>Print</b> (browser dialog) or <b>PDF</b> (instant download) in the top bar.</p>
 
       <div class="row export-actions">
         <button class="btn btn-primary" id="pngBtn" type="button">&#10515; PNG sheet</button>

@@ -1,4 +1,4 @@
-// renderer.js — Canvas 2D card renderer.
+// renderer.js: Canvas 2D card renderer.
 //
 // Canvas spec (brief Ch 6):
 //   internal resolution 640x640px, CSS display size 220x220px.
@@ -95,7 +95,10 @@
     ctx.rotate(item.rot);
     const w = item.hw * 2;
     const h = item.hh * 2;
-    const radius = h / 2;
+    // Rounded-rectangle corners. Not a full stadium; full stadiums had
+    // curved ends that chewed into the horizontal text room for short
+    // labels. Bounded by w/2 so paths are valid for very narrow pills.
+    const radius = Math.min(h * 0.4, w * 0.5);
 
     if (halo) {
       ctx.save();
@@ -170,6 +173,36 @@
     }
   }
 
+  function drawBlankSymbol(ctx, item, opts) {
+    const o = opts || {};
+    ctx.save();
+    ctx.translate(item.cx, item.cy);
+    const r = item.size / 2;
+    if (o.halo) {
+      ctx.save();
+      ctx.shadowColor = 'rgba(255, 200, 50, 0.85)';
+      ctx.shadowBlur = 40;
+      ctx.fillStyle = 'rgba(255, 224, 51, 0.6)';
+      ctx.beginPath();
+      ctx.arc(0, 0, r + 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.strokeStyle = 'rgba(13, 13, 13, 0.28)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // small centre dot so the thing reads as "marker" not "random circle"
+    ctx.fillStyle = 'rgba(13, 13, 13, 0.28)';
+    ctx.beginPath();
+    ctx.arc(0, 0, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
   function drawPlaceholderSymbol(ctx, item) {
     ctx.save();
     ctx.translate(item.cx, item.cy);
@@ -228,6 +261,8 @@
       const halo = o.highlightId && item.sym.id === o.highlightId;
       if (item.type === 'image') {
         drawJobs.push(drawImageSymbol(ctx, item, { halo }));
+      } else if (item.type === 'blank') {
+        drawBlankSymbol(ctx, item, { halo });
       } else {
         drawWordSymbol(ctx, item, { halo });
       }
@@ -254,6 +289,7 @@
     drawCardBackground,
     drawWordSymbol,
     drawImageSymbol,
+    drawBlankSymbol,
     drawPlaceholderSymbol,
     renderCard,
     pickTint,

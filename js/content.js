@@ -1,4 +1,4 @@
-// content.js — content manager. Data model, persistence, ingest.
+// content.js: content manager. Data model, persistence, ingest.
 //
 // Data shape (localStorage key 'findit-content-v1'):
 // {
@@ -102,7 +102,7 @@
   }
 
   // Truncating a rich label (contains ~sub~ or ^sup^ tokens) would break
-  // the tokens, so leave rich labels untouched — they're typically short
+  // the tokens, so leave rich labels untouched. They're typically short
   // formulas like H~2~SO~4~ whose visible length is already under the cap.
   function isRichLabel(word) {
     const s = String(word);

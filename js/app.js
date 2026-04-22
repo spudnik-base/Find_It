@@ -1,8 +1,77 @@
-// app.js — UI wiring + state orchestration.
+// app.js: UI wiring and state orchestration.
 (function () {
   'use strict';
   const C = () => window.FindIt.content;
   const SETTINGS_KEY = 'findit-settings-v1';
+
+  // ── branded confirm dialog ─────────────────────────────────────────────
+  // Drop-in replacement for window.confirm() that matches the manga palette.
+  // Returns a Promise<boolean>.
+  function confirmDialog(opts) {
+    const o = opts || {};
+    const title = o.title || 'Are you sure?';
+    const message = o.message || '';
+    const confirmText = o.confirmText || 'OK';
+    const cancelText = o.cancelText || 'Cancel';
+    const tag = o.tag || 'CONFIRM';
+    const danger = !!o.danger;
+
+    return new Promise((resolve) => {
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop';
+
+      const modal = document.createElement('div');
+      modal.className = 'modal' + (danger ? ' danger' : '');
+      modal.setAttribute('role', 'alertdialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.dataset.tag = tag;
+
+      const h = document.createElement('h3');
+      h.textContent = title;
+      modal.appendChild(h);
+
+      const p = document.createElement('p');
+      p.innerHTML = FindIt.layout.richToHTML(message);
+      modal.appendChild(p);
+
+      const actions = document.createElement('div');
+      actions.className = 'modal-actions';
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'btn btn-ghost';
+      cancelBtn.textContent = cancelText;
+
+      const confirmBtn = document.createElement('button');
+      confirmBtn.type = 'button';
+      confirmBtn.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
+      confirmBtn.textContent = confirmText;
+
+      actions.appendChild(cancelBtn);
+      actions.appendChild(confirmBtn);
+      modal.appendChild(actions);
+      backdrop.appendChild(modal);
+      document.body.appendChild(backdrop);
+
+      let settled = false;
+      const close = (ok) => {
+        if (settled) return;
+        settled = true;
+        document.removeEventListener('keydown', onKey);
+        backdrop.remove();
+        resolve(ok);
+      };
+      const onKey = (e) => {
+        if (e.key === 'Escape') { e.preventDefault(); close(false); }
+        else if (e.key === 'Enter') { e.preventDefault(); close(true); }
+      };
+      cancelBtn.addEventListener('click', () => close(false));
+      confirmBtn.addEventListener('click', () => close(true));
+      backdrop.addEventListener('click', (e) => { if (e.target === backdrop) close(false); });
+      document.addEventListener('keydown', onKey);
+      setTimeout(() => confirmBtn.focus(), 30);
+    });
+  }
 
   // ── toasts ─────────────────────────────────────────────────────────────
   function toast(text, kind, timeoutMs) {
@@ -55,7 +124,7 @@
   }
 
   function checkStorageUsage() {
-    // Rough check — warn at >80% of a conservative 5MB cap.
+    // Rough check: warn at >80% of a conservative 5MB cap.
     try {
       const used = FindIt.content.storageUsageBytes();
       const cap = 5 * 1024 * 1024;
@@ -99,8 +168,9 @@
   // ── starter packs ──────────────────────────────────────────────────────
   function initPacks() {
     const select = document.getElementById('packSelect');
-    const btn = document.getElementById('loadPackBtn');
-    if (!select || !btn) return;
+    const addBtn = document.getElementById('addPackBtn');
+    const replaceBtn = document.getElementById('replacePackBtn');
+    if (!select || !addBtn || !replaceBtn) return;
     const packs = (FindIt.packs && FindIt.packs.all) || [];
     for (const p of packs) {
       const opt = document.createElement('option');
@@ -108,20 +178,44 @@
       opt.textContent = p.name + ' (' + p.symbols.length + ' symbols)';
       select.appendChild(opt);
     }
-    btn.addEventListener('click', () => {
+
+    // Add: append the pack to the current set (no confirm; this is the
+    // safe/reversible action).
+    addBtn.addEventListener('click', () => {
+      const id = select.value;
+      if (!id) return;
+      const pack = FindIt.packs.get(id);
+      if (!pack) return;
+      const res = FindIt.packs.apply(pack, { append: true });
+      if (res.ok) {
+        const nameEl = document.getElementById('setName');
+        if (nameEl) nameEl.value = C().get().setName || '';
+        toast('Added ' + pack.name + ': +' + res.added + ' symbol(s).');
+      }
+    });
+
+    // Replace: wipe current set and load just this pack. Confirm if there's
+    // something to lose.
+    replaceBtn.addEventListener('click', async () => {
       const id = select.value;
       if (!id) return;
       const pack = FindIt.packs.get(id);
       if (!pack) return;
       const cur = C().get().symbols.length;
-      const msg = cur > 0
-        ? 'Replace current ' + cur + ' symbol(s) with "' + pack.name + '"?'
-        : 'Load "' + pack.name + '"?';
-      if (!confirm(msg)) return;
+      const ok = cur === 0 ? true : await confirmDialog({
+        tag: 'REPLACE',
+        title: 'Replace current set?',
+        message: 'This will clear your ' + cur + ' symbol(s) and load "' + pack.name + '" instead.',
+        confirmText: 'Replace',
+        cancelText: 'Keep current',
+        danger: true,
+      });
+      if (!ok) return;
       const res = FindIt.packs.apply(pack);
       if (res.ok) {
-        toast('Loaded ' + pack.name + ' — ' + res.loaded + ' symbols.');
-        document.getElementById('setName').value = pack.name;
+        toast('Loaded ' + pack.name + ': ' + res.loaded + ' symbols.');
+        const nameEl = document.getElementById('setName');
+        if (nameEl) nameEl.value = pack.name;
       }
     });
   }
@@ -150,7 +244,7 @@
       });
     });
 
-    // Word input — add on Enter, comma, or paste.
+    // Word input: add on Enter, comma, or paste.
     const wordInput = document.getElementById('wordInput');
     wordInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ',') {
@@ -226,17 +320,34 @@
     });
 
     // Clear symbols.
-    document.getElementById('clearSymbolsBtn').addEventListener('click', () => {
-      if (!content.get().symbols.length) return;
-      if (confirm('Remove all ' + content.get().symbols.length + ' symbols?')) {
+    document.getElementById('clearSymbolsBtn').addEventListener('click', async () => {
+      const count = content.get().symbols.length;
+      if (!count) return;
+      const ok = await confirmDialog({
+        tag: 'CLEAR',
+        title: 'Remove all symbols?',
+        message: 'This will delete all ' + count + ' symbol(s) in the current set. This cannot be undone.',
+        confirmText: 'Remove all',
+        cancelText: 'Keep them',
+        danger: true,
+      });
+      if (ok) {
         markSaving();
         content.clearSymbols();
       }
     });
 
     // Reset everything.
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      if (confirm('Reset the whole set? This clears all symbols and settings.')) {
+    document.getElementById('resetBtn').addEventListener('click', async () => {
+      const ok = await confirmDialog({
+        tag: 'RESET',
+        title: 'Reset the whole set?',
+        message: 'Clears every symbol, abbreviation, and saved setting. Print, preview and share history go with it.',
+        confirmText: 'Reset',
+        cancelText: 'Keep',
+        danger: true,
+      });
+      if (ok) {
         content.reset();
         setNameEl.value = '';
         markSaved();
@@ -309,12 +420,12 @@
       } else {
         const label = document.createElement('span');
         label.className = 'chip-value';
-        label.textContent = sym.value;
+        label.innerHTML = FindIt.layout.richToHTML(sym.value);
         chip.appendChild(label);
         if (sym.display && sym.display !== sym.value) {
           const disp = document.createElement('span');
           disp.className = 'chip-display';
-          disp.textContent = '(' + sym.display + ')';
+          disp.innerHTML = '(' + FindIt.layout.richToHTML(sym.display) + ')';
           chip.appendChild(disp);
         }
       }
@@ -349,8 +460,8 @@
     if (got === 0) msg = 'Add at least ' + n + ' symbols to start. ' + target + ' is the full set.';
     else if (got < n) msg = 'Need at least ' + n + ' symbols for a valid card. ' + (n - got) + ' more to go.';
     else if (got < target) msg = got + ' of ' + target + ' for a complete set (' + (target - got) + ' more). Blanks will pad the rest.';
-    else if (got === target) msg = got + ' of ' + target + ' — complete set.';
-    else msg = got + ' of ' + target + ' — first ' + target + ' used, ' + (got - target) + ' extra ignored.';
+    else if (got === target) msg = got + ' of ' + target + ': complete set.';
+    else msg = got + ' of ' + target + ': first ' + target + ' used, ' + (got - target) + ' extra ignored.';
     text.textContent = msg;
     text.className = 'counter-text' +
       (got < n ? ' warn' : got === target ? ' ok' : '');
@@ -428,9 +539,30 @@
       });
     });
 
-    // Restore shape from settings on boot.
+    // Print-size segmented control. Applies to both Print and PDF export.
+    document.querySelectorAll('[data-size]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.printSize = btn.dataset.size;
+        saveSettings({ printSize: state.printSize });
+        refreshConfigUI();
+      });
+    });
+
+    // Restore persisted prefs on boot.
     const settings = loadSettings();
     if (settings.cardShape) state.cardShape = settings.cardShape;
+    if (settings.printSize) state.printSize = settings.printSize;
+  }
+
+  // Return the symbols-per-card value that yields the largest complete deck
+  // we can build with `count` symbols (without any blanks). null if count is
+  // too small for even n=4.
+  function suggestAltN(count) {
+    const shapes = [4, 6, 8]
+      .map((n) => FindIt.setShape(n))
+      .filter((sh) => sh.totalSymbols <= count)
+      .sort((a, b) => b.totalSymbols - a.totalSymbols);
+    return shapes.length ? shapes[0].symbolsPerCard : null;
   }
 
   function refreshConfigUI() {
@@ -441,6 +573,14 @@
     document.querySelectorAll('[data-shape]').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.shape === state.cardShape);
     });
+    document.querySelectorAll('[data-size]').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.size === state.printSize);
+    });
+    const sizeHint = document.getElementById('sizeHint');
+    if (sizeHint && FindIt.exporter && FindIt.exporter.printLayout) {
+      const L = FindIt.exporter.printLayout(state.printSize);
+      sizeHint.textContent = L.cols + '×' + L.rows + ' grid of ' + L.cardMM + 'mm cards (' + (L.cols * L.rows) + ' per A4 page).';
+    }
     const vSlider = document.getElementById('varianceSlider');
     const vLabel = document.getElementById('varianceLabel');
     if (vSlider) vSlider.value = String(s.sizeVariance || 2);
@@ -455,12 +595,32 @@
         Math.min(got, shape.totalSymbols) + '/' + shape.totalSymbols + ' symbols · ' +
         shape.symbolsPerCard + ' per card';
     }
+
+    // Placeholder warning: show when the pack is smaller than the plane needs.
+    const warnEl = document.getElementById('blankWarning');
+    if (warnEl) {
+      const short = Math.max(0, shape.totalSymbols - got);
+      if (short > 0 && got > 0) {
+        const alt = suggestAltN(got);
+        warnEl.hidden = false;
+        warnEl.innerHTML =
+          '<span class="warn-icon" aria-hidden="true">&#9888;</span>' +
+          '<span><b>' + short + ' blank placeholder(s)</b> will pad this set. ' +
+          'Pairs that only share a blank won\'t feel like a real match.' +
+          (alt ? ' Try <b>' + alt + ' per card</b> for a clean deck, or add ' + short + ' more symbols.' : '') +
+          '</span>';
+      } else {
+        warnEl.hidden = true;
+        warnEl.innerHTML = '';
+      }
+    }
   }
 
   // ── screen 3: preview ──────────────────────────────────────────────────
   const PREVIEW_COUNT = 6;
   const state = {
     cardShape: 'circle',
+    printSize: 'standard',
     deck: null,
     previewIndices: [],
     selected: [],
@@ -542,7 +702,7 @@
     if (result && result.dropped && result.dropped.length) {
       console.warn(
         'layout: dropped ' + result.dropped.length + ' symbol(s) on card #' + (cardIdx + 1) +
-        ' — try reducing size variance or using shorter labels.'
+        '. Try reducing size variance or using shorter labels.'
       );
     }
   }
@@ -553,7 +713,7 @@
     const pieces = [];
     if (deck.blanksAdded > 0) {
       pieces.push(
-        deck.blanksAdded + ' blank placeholder(s) added — add ' + deck.blanksAdded + ' more symbols for a full set.'
+        deck.blanksAdded + ' blank placeholder(s) added. Add ' + deck.blanksAdded + ' more symbols for a full set.'
       );
     }
     if (deck.droppedSymbols.length > 0) {
@@ -569,7 +729,7 @@
       return;
     }
     bar.hidden = false;
-    bar.textContent = pieces.join('  —  ');
+    bar.textContent = pieces.join('. ');
   }
 
   function onPreviewClick(slot) {
@@ -589,7 +749,7 @@
       refreshSelectionUI();
       // On second click (below), we'll check match. If the user clicks the
       // same card twice, we treat the second as "clear". So we need another
-      // gesture for re-roll — shift-click or dblclick would work; for now,
+      // gesture for re-roll: shift-click or dblclick would work; for now,
       // a single click selects, and pressing the card again unselects. Re-
       // rolling happens via the "clear" button + configure change. Simpler.
       document.getElementById('matchBar').hidden = true;
@@ -630,9 +790,12 @@
     if (shared) {
       badge.className = 'match-badge ok';
       badge.textContent = 'MATCH ✓';
-      text.textContent = shared.isBlank
-        ? '(shared blank placeholder)'
-        : 'shared: ' + (shared.display || shared.value || 'image');
+      if (shared.isBlank) {
+        text.textContent = '(shared blank placeholder)';
+      } else {
+        text.innerHTML = 'shared: ' +
+          FindIt.layout.richToHTML(shared.display || shared.value || 'image');
+      }
       // Draw halo on both cards.
       state.selected.forEach((slot) =>
         drawPreviewCard(slot, { highlightId: shared.id })
@@ -640,7 +803,7 @@
     } else {
       badge.className = 'match-badge bad';
       badge.textContent = 'MISMATCH ✗';
-      text.textContent = 'No shared symbol — this should never happen; please report.';
+      text.textContent = 'No shared symbol. This should never happen; please report.';
     }
     bar.hidden = false;
   }
@@ -659,7 +822,7 @@
     }
     setStatus('Building deck…');
     try {
-      const result = await FindIt.exporter.printDeck({ shape: state.cardShape });
+      const result = await FindIt.exporter.printDeck({ shape: state.cardShape, size: state.printSize });
       setStatus('Opened print dialog for ' + result.cards + ' cards.');
     } catch (err) {
       console.error(err);
@@ -668,12 +831,36 @@
     }
   }
 
+  async function runPdfDownload(setStatus, button) {
+    const s = C().get();
+    if (s.symbols.length === 0) {
+      setStatus('Add some symbols first.');
+      toast('Add some symbols before exporting.', 'warn');
+      return;
+    }
+    if (button) button.disabled = true;
+    setStatus('Building PDF…');
+    try {
+      const result = await FindIt.exporter.downloadPDF({ shape: state.cardShape, size: state.printSize });
+      setStatus('Downloaded ' + result.filename + ' (' + result.cards + ' cards).');
+      toast('PDF saved: ' + result.filename);
+    } catch (err) {
+      console.error(err);
+      setStatus('PDF failed: ' + err.message);
+      toast('PDF failed: ' + err.message, 'err');
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
   function initExport() {
     const statusEl = document.getElementById('exportStatus');
     const setStatus = (text) => { if (statusEl) statusEl.textContent = text || ''; };
 
-    const toolbarBtn = document.getElementById('toolbarPrintBtn');
-    if (toolbarBtn) toolbarBtn.addEventListener('click', () => runPrint(setStatus));
+    const printBtn = document.getElementById('toolbarPrintBtn');
+    if (printBtn) printBtn.addEventListener('click', () => runPrint(setStatus));
+    const pdfBtn = document.getElementById('toolbarPdfBtn');
+    if (pdfBtn) pdfBtn.addEventListener('click', () => runPdfDownload(setStatus, pdfBtn));
 
     document.getElementById('pngBtn').addEventListener('click', async () => {
       const s = C().get();
@@ -698,7 +885,7 @@
           await navigator.clipboard.writeText(url);
           setStatus(
             'Share link copied to clipboard' +
-              (omittedImages ? ' (images omitted — URLs have a size limit).' : '.')
+              (omittedImages ? ' (images omitted: URLs have a size limit).' : '.')
           );
         } catch {
           setStatus('Share link: ' + url);

@@ -1,4 +1,4 @@
-// projective.js — finite projective plane generator for FIND IT.
+// projective.js: finite projective plane generator for FIND IT.
 //
 // For a projective plane of order q (q prime), the standard construction
 // produces q^2 + q + 1 cards, each with exactly q + 1 symbols, and every
