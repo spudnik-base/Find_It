@@ -163,6 +163,199 @@
         '<circle cx="14" cy="78" r="7" fill="' + RED + '" stroke="' + INK + '" stroke-width="2.5"/>' +
       '</svg>'
     ),
+
+    // ─── Solar System ────────────────────────────────────────────────────
+    sun: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        // rays
+        '<g stroke="' + INK + '" stroke-width="4" stroke-linecap="round">' +
+          '<line x1="60" y1="4"   x2="60" y2="20"/>' +
+          '<line x1="60" y1="100" x2="60" y2="116"/>' +
+          '<line x1="4"  y1="60"  x2="20" y2="60"/>' +
+          '<line x1="100" y1="60" x2="116" y2="60"/>' +
+          '<line x1="18" y1="18"  x2="30" y2="30"/>' +
+          '<line x1="90" y1="90"  x2="102" y2="102"/>' +
+          '<line x1="18" y1="102" x2="30" y2="90"/>' +
+          '<line x1="90" y1="30"  x2="102" y2="18"/>' +
+        '</g>' +
+        '<circle cx="60" cy="60" r="26" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5"/>' +
+      '</svg>'
+    ),
+
+    moon: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M76 14 a48 48 0 1 0 0 92 a36 36 0 0 1 0 -92 Z" ' +
+          'fill="#e8e2cf" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<circle cx="50" cy="48" r="5" fill="#b9b29f" stroke="' + INK + '" stroke-width="2"/>' +
+        '<circle cx="40" cy="72" r="4" fill="#b9b29f" stroke="' + INK + '" stroke-width="2"/>' +
+        '<circle cx="62" cy="82" r="3" fill="#b9b29f" stroke="' + INK + '" stroke-width="2"/>' +
+      '</svg>'
+    ),
+
+    earth: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<circle cx="60" cy="60" r="44" fill="' + BLUE + '" stroke="' + INK + '" stroke-width="5"/>' +
+        // continents (stylised)
+        '<path d="M30 52 q8 -10 20 -4 q10 6 22 -2 q8 -4 18 6" fill="none" stroke="' + GREEN + '" stroke-width="8" stroke-linecap="round"/>' +
+        '<path d="M24 78 q12 -6 26 2 q10 6 24 -2" fill="none" stroke="' + GREEN + '" stroke-width="8" stroke-linecap="round"/>' +
+      '</svg>'
+    ),
+
+    mars: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<circle cx="60" cy="60" r="44" fill="' + RED + '" stroke="' + INK + '" stroke-width="5"/>' +
+        // ice caps + surface marks
+        '<ellipse cx="60" cy="22" rx="14" ry="5" fill="#ffffff" stroke="' + INK + '" stroke-width="2"/>' +
+        '<circle cx="42" cy="60" r="4" fill="#7a1a12"/>' +
+        '<circle cx="72" cy="72" r="5" fill="#7a1a12"/>' +
+        '<circle cx="82" cy="48" r="3" fill="#7a1a12"/>' +
+      '</svg>'
+    ),
+
+    jupiter: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<circle cx="60" cy="60" r="46" fill="#e3b87a" stroke="' + INK + '" stroke-width="5"/>' +
+        // bands
+        '<path d="M18 44 h84" stroke="#8b5a2b" stroke-width="6" stroke-linecap="round"/>' +
+        '<path d="M14 60 h92" stroke="#a66a2b" stroke-width="6" stroke-linecap="round"/>' +
+        '<path d="M18 76 h84" stroke="#8b5a2b" stroke-width="6" stroke-linecap="round"/>' +
+        // great red spot
+        '<ellipse cx="72" cy="66" rx="10" ry="6" fill="' + RED + '" stroke="' + INK + '" stroke-width="2.5"/>' +
+      '</svg>'
+    ),
+
+    saturn: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        // rings (ellipse behind planet)
+        '<ellipse cx="60" cy="64" rx="54" ry="14" fill="none" stroke="' + INK + '" stroke-width="5"/>' +
+        '<ellipse cx="60" cy="64" rx="54" ry="14" fill="none" stroke="' + YELLOW + '" stroke-width="8" stroke-dasharray="2 8"/>' +
+        // planet body
+        '<circle cx="60" cy="58" r="28" fill="#e0c98a" stroke="' + INK + '" stroke-width="5"/>' +
+        '<path d="M34 56 h52" stroke="#9a7b3a" stroke-width="4"/>' +
+      '</svg>'
+    ),
+
+    comet: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        // tail
+        '<path d="M108 20 L54 62 L96 50 L44 70 L84 74 L38 82" fill="none" stroke="' + TEAL + '" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>' +
+        // head
+        '<circle cx="30" cy="90" r="16" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5"/>' +
+      '</svg>'
+    ),
+
+    astronaut: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        // helmet
+        '<circle cx="60" cy="40" r="26" fill="#ffffff" stroke="' + INK + '" stroke-width="5"/>' +
+        // visor
+        '<path d="M44 36 a16 12 0 0 1 32 0 Z" fill="' + BLUE + '" stroke="' + INK + '" stroke-width="3"/>' +
+        // body
+        '<rect x="38" y="66" width="44" height="40" rx="8" fill="#ffffff" stroke="' + INK + '" stroke-width="5"/>' +
+        // chest control
+        '<rect x="52" y="78" width="16" height="12" fill="' + RED + '" stroke="' + INK + '" stroke-width="2.5"/>' +
+      '</svg>'
+    ),
+
+    // ─── Body Parts ──────────────────────────────────────────────────────
+    eye: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M10 60 q50 -46 100 0 q-50 46 -100 0 Z" fill="#ffffff" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<circle cx="60" cy="60" r="18" fill="' + BLUE + '" stroke="' + INK + '" stroke-width="4"/>' +
+        '<circle cx="60" cy="60" r="7" fill="' + INK + '"/>' +
+        '<circle cx="66" cy="54" r="3" fill="#ffffff"/>' +
+      '</svg>'
+    ),
+
+    ear: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M40 16 C72 10 96 32 94 60 C92 78 78 84 74 96 C70 108 52 112 42 100 C28 86 18 64 22 46 C26 28 34 18 40 16 Z" ' +
+          'fill="#f7d6bf" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<path d="M52 40 C68 38 80 52 76 66 C74 76 64 76 62 84" ' +
+          'fill="none" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+      '</svg>'
+    ),
+
+    nose: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M60 10 C50 30 38 62 38 82 C38 98 52 106 60 106 C68 106 82 98 82 82 C82 62 70 30 60 10 Z" ' +
+          'fill="#f7d6bf" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<ellipse cx="50" cy="90" rx="5" ry="3" fill="' + INK + '"/>' +
+        '<ellipse cx="70" cy="90" rx="5" ry="3" fill="' + INK + '"/>' +
+      '</svg>'
+    ),
+
+    mouth: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M14 60 Q60 20 106 60 Q60 100 14 60 Z" fill="' + RED + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<path d="M14 60 Q60 62 106 60" fill="none" stroke="' + INK + '" stroke-width="4"/>' +
+        '<path d="M30 58 Q60 46 90 58" fill="none" stroke="#ffffff" stroke-width="4"/>' +
+      '</svg>'
+    ),
+
+    hand: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        // palm
+        '<rect x="34" y="60" width="52" height="48" rx="10" fill="#f7d6bf" stroke="' + INK + '" stroke-width="5"/>' +
+        // fingers
+        '<rect x="36" y="16" width="12" height="50" rx="6" fill="#f7d6bf" stroke="' + INK + '" stroke-width="4"/>' +
+        '<rect x="52" y="10" width="12" height="56" rx="6" fill="#f7d6bf" stroke="' + INK + '" stroke-width="4"/>' +
+        '<rect x="68" y="16" width="12" height="50" rx="6" fill="#f7d6bf" stroke="' + INK + '" stroke-width="4"/>' +
+        // thumb
+        '<rect x="82" y="56" width="24" height="12" rx="6" fill="#f7d6bf" stroke="' + INK + '" stroke-width="4"/>' +
+      '</svg>'
+    ),
+
+    foot: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        // heel + sole
+        '<path d="M28 20 C20 32 22 58 30 74 C34 84 44 92 60 94 C82 96 100 86 100 74 C100 64 86 54 72 50 C58 46 44 36 40 24 C38 18 32 14 28 20 Z" ' +
+          'fill="#f7d6bf" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        // toes
+        '<circle cx="86" cy="80" r="8" fill="#f7d6bf" stroke="' + INK + '" stroke-width="3"/>' +
+        '<circle cx="76" cy="94" r="6" fill="#f7d6bf" stroke="' + INK + '" stroke-width="3"/>' +
+        '<circle cx="60" cy="102" r="5" fill="#f7d6bf" stroke="' + INK + '" stroke-width="3"/>' +
+        '<circle cx="46" cy="104" r="4" fill="#f7d6bf" stroke="' + INK + '" stroke-width="3"/>' +
+      '</svg>'
+    ),
+
+    heart: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M60 102 C16 74 10 42 30 26 C48 14 58 30 60 38 C62 30 72 14 90 26 C110 42 104 74 60 102 Z" ' +
+          'fill="' + RED + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<path d="M40 42 q8 -8 16 0" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>' +
+      '</svg>'
+    ),
+
+    brain: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        // outer shape (two hemispheres)
+        '<path d="M26 44 C26 24 48 14 60 22 C72 14 94 24 94 44 C102 52 98 70 88 74 C88 90 72 102 60 96 C48 102 32 90 32 74 C22 70 18 52 26 44 Z" ' +
+          'fill="#f9b8c4" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        // central fissure + folds
+        '<line x1="60" y1="22" x2="60" y2="94" stroke="' + INK + '" stroke-width="3"/>' +
+        '<path d="M36 50 q10 6 0 14" fill="none" stroke="' + INK + '" stroke-width="2.5"/>' +
+        '<path d="M84 50 q-10 6 0 14" fill="none" stroke="' + INK + '" stroke-width="2.5"/>' +
+        '<path d="M42 74 q8 -6 16 0" fill="none" stroke="' + INK + '" stroke-width="2.5"/>' +
+        '<path d="M62 74 q8 6 16 0" fill="none" stroke="' + INK + '" stroke-width="2.5"/>' +
+      '</svg>'
+    ),
+
+    // ─── Misc (Spanish Basics) ───────────────────────────────────────────
+    wave: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        // palm
+        '<path d="M34 44 L34 96 Q34 108 48 108 L86 108 Q100 108 100 96 L100 58 Q100 50 92 50 Q84 50 84 58 L84 72" ' +
+          'fill="#f7d6bf" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        // fingers
+        '<path d="M34 58 L34 24 Q34 16 42 16 Q50 16 50 24 L50 60" fill="#f7d6bf" stroke="' + INK + '" stroke-width="4" stroke-linejoin="round"/>' +
+        '<path d="M50 58 L50 18 Q50 10 58 10 Q66 10 66 18 L66 60" fill="#f7d6bf" stroke="' + INK + '" stroke-width="4" stroke-linejoin="round"/>' +
+        '<path d="M66 58 L66 22 Q66 14 74 14 Q82 14 82 22 L82 60" fill="#f7d6bf" stroke="' + INK + '" stroke-width="4" stroke-linejoin="round"/>' +
+        // motion lines
+        '<path d="M106 28 q6 6 0 12" fill="none" stroke="' + YELLOW + '" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M108 48 q8 6 0 12" fill="none" stroke="' + YELLOW + '" stroke-width="4" stroke-linecap="round"/>' +
+      '</svg>'
+    ),
   };
 
   const IB_BIO_MOLECULES = {
@@ -217,7 +410,182 @@
     ],
   };
 
-  const PACKS = [IB_BIO_MOLECULES];
+  // ─── Solar System ──────────────────────────────────────────────────────
+  const SOLAR_SYSTEM = {
+    id: 'solar-system',
+    name: 'Solar System',
+    symbolsPerCard: 6,
+    abbreviations: {
+      'international space station': 'ISS',
+      'milky way': 'milkyway',
+      'constellation': 'constel.',
+      'astronaut': 'astro',
+    },
+    symbols: [
+      { type: 'image', value: ICONS.sun,       display: 'sun' },
+      { type: 'image', value: ICONS.moon,      display: 'moon' },
+      { type: 'image', value: ICONS.earth,     display: 'earth' },
+      { type: 'image', value: ICONS.mars,      display: 'mars' },
+      { type: 'image', value: ICONS.jupiter,   display: 'jupiter' },
+      { type: 'image', value: ICONS.saturn,    display: 'saturn' },
+      { type: 'image', value: ICONS.comet,     display: 'comet' },
+      { type: 'image', value: ICONS.astronaut, display: 'astronaut' },
+      { type: 'word', value: 'mercury' },
+      { type: 'word', value: 'venus' },
+      { type: 'word', value: 'uranus' },
+      { type: 'word', value: 'neptune' },
+      { type: 'word', value: 'pluto' },
+      { type: 'word', value: 'star' },
+      { type: 'word', value: 'galaxy' },
+      { type: 'word', value: 'nebula' },
+      { type: 'word', value: 'asteroid' },
+      { type: 'word', value: 'meteor' },
+      { type: 'word', value: 'orbit' },
+      { type: 'word', value: 'eclipse' },
+      { type: 'word', value: 'gravity' },
+      { type: 'word', value: 'crater' },
+      { type: 'word', value: 'rocket' },
+      { type: 'word', value: 'satellite' },
+      { type: 'word', value: 'telescope' },
+      { type: 'word', value: 'solar' },
+      { type: 'word', value: 'lunar' },
+      { type: 'word', value: 'rings' },
+      { type: 'word', value: 'constellation' },
+      { type: 'word', value: 'milky way' },
+      { type: 'word', value: 'black hole' },
+    ],
+  };
+
+  // ─── Body Parts ────────────────────────────────────────────────────────
+  const BODY_PARTS = {
+    id: 'body-parts',
+    name: 'Body Parts',
+    symbolsPerCard: 6,
+    abbreviations: {
+      'shoulder': 'should.',
+      'intestine': 'intest.',
+    },
+    symbols: [
+      { type: 'image', value: ICONS.eye,    display: 'eye' },
+      { type: 'image', value: ICONS.ear,    display: 'ear' },
+      { type: 'image', value: ICONS.nose,   display: 'nose' },
+      { type: 'image', value: ICONS.mouth,  display: 'mouth' },
+      { type: 'image', value: ICONS.hand,   display: 'hand' },
+      { type: 'image', value: ICONS.foot,   display: 'foot' },
+      { type: 'image', value: ICONS.heart,  display: 'heart' },
+      { type: 'image', value: ICONS.brain,  display: 'brain' },
+      { type: 'word', value: 'head' },
+      { type: 'word', value: 'neck' },
+      { type: 'word', value: 'shoulder' },
+      { type: 'word', value: 'arm' },
+      { type: 'word', value: 'elbow' },
+      { type: 'word', value: 'wrist' },
+      { type: 'word', value: 'finger' },
+      { type: 'word', value: 'thumb' },
+      { type: 'word', value: 'chest' },
+      { type: 'word', value: 'back' },
+      { type: 'word', value: 'hip' },
+      { type: 'word', value: 'leg' },
+      { type: 'word', value: 'knee' },
+      { type: 'word', value: 'ankle' },
+      { type: 'word', value: 'toe' },
+      { type: 'word', value: 'skull' },
+      { type: 'word', value: 'spine' },
+      { type: 'word', value: 'rib' },
+      { type: 'word', value: 'lungs' },
+      { type: 'word', value: 'liver' },
+      { type: 'word', value: 'kidney' },
+      { type: 'word', value: 'stomach' },
+      { type: 'word', value: 'intestine' },
+    ],
+  };
+
+  // ─── Spanish Basics ────────────────────────────────────────────────────
+  const SPANISH_BASICS = {
+    id: 'spanish-basics',
+    name: 'Spanish Basics',
+    symbolsPerCard: 6,
+    abbreviations: {
+      'por favor': 'porfvr',
+      'buenos días': 'b.días',
+    },
+    symbols: [
+      { type: 'image', value: ICONS.wave,  display: 'hola' },
+      { type: 'image', value: ICONS.heart, display: 'amor' },
+      { type: 'word', value: 'adiós' },
+      { type: 'word', value: 'gracias' },
+      { type: 'word', value: 'por favor' },
+      { type: 'word', value: 'sí' },
+      { type: 'word', value: 'no' },
+      { type: 'word', value: 'buenos días' },
+      { type: 'word', value: 'uno' },
+      { type: 'word', value: 'dos' },
+      { type: 'word', value: 'tres' },
+      { type: 'word', value: 'cuatro' },
+      { type: 'word', value: 'cinco' },
+      { type: 'word', value: 'seis' },
+      { type: 'word', value: 'rojo' },
+      { type: 'word', value: 'azul' },
+      { type: 'word', value: 'verde' },
+      { type: 'word', value: 'amarillo' },
+      { type: 'word', value: 'casa' },
+      { type: 'word', value: 'perro' },
+      { type: 'word', value: 'gato' },
+      { type: 'word', value: 'agua' },
+      { type: 'word', value: 'pan' },
+      { type: 'word', value: 'libro' },
+      { type: 'word', value: 'escuela' },
+      { type: 'word', value: 'amigo' },
+      { type: 'word', value: 'familia' },
+      { type: 'word', value: 'madre' },
+      { type: 'word', value: 'padre' },
+      { type: 'word', value: 'sol' },
+      { type: 'word', value: 'luna' },
+    ],
+  };
+
+  // ─── KS1 Reading (First Words) ─────────────────────────────────────────
+  const KS1_READING = {
+    id: 'ks1-reading',
+    name: 'KS1 First Reading Words',
+    symbolsPerCard: 6,
+    abbreviations: {},
+    symbols: [
+      { type: 'word', value: 'the' },
+      { type: 'word', value: 'and' },
+      { type: 'word', value: 'is' },
+      { type: 'word', value: 'it' },
+      { type: 'word', value: 'a' },
+      { type: 'word', value: 'I' },
+      { type: 'word', value: 'to' },
+      { type: 'word', value: 'of' },
+      { type: 'word', value: 'in' },
+      { type: 'word', value: 'my' },
+      { type: 'word', value: 'go' },
+      { type: 'word', value: 'see' },
+      { type: 'word', value: 'me' },
+      { type: 'word', value: 'can' },
+      { type: 'word', value: 'like' },
+      { type: 'word', value: 'you' },
+      { type: 'word', value: 'look' },
+      { type: 'word', value: 'come' },
+      { type: 'word', value: 'cat' },
+      { type: 'word', value: 'dog' },
+      { type: 'word', value: 'hat' },
+      { type: 'word', value: 'sun' },
+      { type: 'word', value: 'red' },
+      { type: 'word', value: 'big' },
+      { type: 'word', value: 'up' },
+      { type: 'word', value: 'day' },
+      { type: 'word', value: 'play' },
+      { type: 'word', value: 'said' },
+      { type: 'word', value: 'was' },
+      { type: 'word', value: 'yes' },
+      { type: 'word', value: 'no' },
+    ],
+  };
+
+  const PACKS = [IB_BIO_MOLECULES, SOLAR_SYSTEM, BODY_PARTS, SPANISH_BASICS, KS1_READING];
 
   function get(id) {
     return PACKS.find((p) => p.id === id) || null;
