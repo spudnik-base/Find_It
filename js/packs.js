@@ -341,6 +341,54 @@
       '</svg>'
     ),
 
+    // ─── Shapes ──────────────────────────────────────────────────────────
+    shapeSquare: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<rect x="20" y="20" width="80" height="80" fill="' + TEAL + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+      '</svg>'
+    ),
+    shapeCircle: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<circle cx="60" cy="60" r="44" fill="' + RED + '" stroke="' + INK + '" stroke-width="5"/>' +
+      '</svg>'
+    ),
+    shapeTriangle: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<polygon points="60,14 14,96 106,96" fill="' + BLUE + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+      '</svg>'
+    ),
+    shapeRectangle: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<rect x="10" y="32" width="100" height="56" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+      '</svg>'
+    ),
+    shapeStar: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<polygon points="60,8 73,44 112,44 81,68 92,108 60,86 28,108 39,68 8,44 47,44" ' +
+          'fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="4" stroke-linejoin="round"/>' +
+      '</svg>'
+    ),
+    shapePentagon: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<polygon points="60,10 108,45 90,104 30,104 12,45" fill="' + GREEN + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+      '</svg>'
+    ),
+    shapeHexagon: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<polygon points="60,10 104,36 104,84 60,110 16,84 16,36" fill="' + TEAL + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+      '</svg>'
+    ),
+    shapeDiamond: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<polygon points="60,10 110,60 60,110 10,60" fill="' + RED + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+      '</svg>'
+    ),
+    shapeOval: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<ellipse cx="60" cy="60" rx="50" ry="32" fill="' + BLUE + '" stroke="' + INK + '" stroke-width="5"/>' +
+      '</svg>'
+    ),
+
     // ─── Misc (Spanish Basics) ───────────────────────────────────────────
     wave: svg(
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
@@ -781,6 +829,48 @@
     })(),
   };
 
+  // ─── Shapes & Numbers (KS1 Numeracy) ───────────────────────────────────
+  // 10 shape icons + 10 digits + 5 operators + 6 concept words = 31.
+  const SHAPES_NUMBERS = {
+    id: 'shapes-numbers',
+    name: 'Shapes & Numbers',
+    symbolsPerCard: 6,
+    abbreviations: {},
+    symbols: [
+      { type: 'image', value: ICONS.shapeSquare,    display: 'square' },
+      { type: 'image', value: ICONS.shapeCircle,    display: 'circle' },
+      { type: 'image', value: ICONS.shapeTriangle,  display: 'triangle' },
+      { type: 'image', value: ICONS.shapeRectangle, display: 'rectangle' },
+      { type: 'image', value: ICONS.shapeStar,      display: 'star' },
+      { type: 'image', value: ICONS.heart,          display: 'heart' },
+      { type: 'image', value: ICONS.shapePentagon,  display: 'pentagon' },
+      { type: 'image', value: ICONS.shapeHexagon,   display: 'hexagon' },
+      { type: 'image', value: ICONS.shapeDiamond,   display: 'diamond' },
+      { type: 'image', value: ICONS.shapeOval,      display: 'oval' },
+      { type: 'word', value: '0' },
+      { type: 'word', value: '1' },
+      { type: 'word', value: '2' },
+      { type: 'word', value: '3' },
+      { type: 'word', value: '4' },
+      { type: 'word', value: '5' },
+      { type: 'word', value: '6' },
+      { type: 'word', value: '7' },
+      { type: 'word', value: '8' },
+      { type: 'word', value: '9' },
+      { type: 'word', value: '+' },
+      { type: 'word', value: '−' },
+      { type: 'word', value: '×' },
+      { type: 'word', value: '÷' },
+      { type: 'word', value: '=' },
+      { type: 'word', value: 'half' },
+      { type: 'word', value: 'pair' },
+      { type: 'word', value: 'double' },
+      { type: 'word', value: 'odd' },
+      { type: 'word', value: 'even' },
+      { type: 'word', value: 'dozen' },
+    ],
+  };
+
   const PACKS = [
     IB_BIO_MOLECULES,
     GCSE_CHEMISTRY,
@@ -788,6 +878,7 @@
     BODY_PARTS,
     SPANISH_BASICS,
     FRENCH_BASICS,
+    SHAPES_NUMBERS,
     KS1_READING,
     KS1_PHONICS,
     KS2_VOCAB,
