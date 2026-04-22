@@ -18,14 +18,14 @@
   const MAX_ATTEMPTS = 500;
 
   // Base symbol sizes (measured for canvas 640 / radius 320) chosen so
-  // that the full n symbols can be packed without the layout engine
-  // dropping any. Denser cards (n = 8) use smaller symbols than sparse
-  // cards (n = 4).
+  // short labels stay legible when the card is scaled down to ~220px on
+  // screen, while still leaving room for up to 8 symbols on a single card.
+  // Denser cards use smaller bases than sparse ones.
   function baseSizesForN(n) {
     const v = Number(n) || 6;
-    if (v <= 4) return { wordBase: 40, imageBase: 150 };
-    if (v <= 6) return { wordBase: 32, imageBase: 120 };
-    return       { wordBase: 24, imageBase: 90 };
+    if (v <= 4) return { wordBase: 52, imageBase: 170 };
+    if (v <= 6) return { wordBase: 44, imageBase: 135 };
+    return       { wordBase: 34, imageBase: 100 };
   }
 
   // ── sub/sup rich-text parsing ──────────────────────────────────────────
@@ -55,6 +55,28 @@
 
   const SUB_SCALE = 0.62;
   const SUB_SHIFT_FRAC = 0.22;  // baseline offset as fraction of base size
+
+  function escapeHTML(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // Render a label string (possibly with ~sub~ or ^sup^ tokens) to safe HTML.
+  // Non-rich labels pass through with HTML-escaping.
+  function richToHTML(text) {
+    const segs = parseRich(text);
+    if (!segs) return escapeHTML(text);
+    return segs.map((s) => {
+      const safe = escapeHTML(s.text);
+      if (s.style === 'sub') return '<sub>' + safe + '</sub>';
+      if (s.style === 'sup') return '<sup>' + safe + '</sup>';
+      return safe;
+    }).join('');
+  }
 
   // ── size assignment (brief Ch 4) ───────────────────────────────────────
   function randSize(baseMin, baseMax) {
@@ -263,6 +285,8 @@
     SUB_SHIFT_FRAC,
     baseSizesForN,
     parseRich,
+    richToHTML,
+    escapeHTML,
     randSize,
     obbCorners,
     obbOverlap,
