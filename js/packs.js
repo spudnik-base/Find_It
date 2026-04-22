@@ -404,6 +404,282 @@
         '<path d="M108 48 q8 6 0 12" fill="none" stroke="' + YELLOW + '" stroke-width="4" stroke-linecap="round"/>' +
       '</svg>'
     ),
+
+    // ─── Emotion faces ───────────────────────────────────────────────────
+    faceHappy: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<circle cx="60" cy="60" r="46" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="44" cy="52" r="5" fill="' + INK + '"/>' +
+        '<circle cx="76" cy="52" r="5" fill="' + INK + '"/>' +
+        '<path d="M38 70 Q60 92 82 70" fill="none" stroke="' + INK + '" stroke-width="5" stroke-linecap="round"/>' +
+      '</svg>'
+    ),
+    faceSad: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<circle cx="60" cy="60" r="46" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="44" cy="52" r="5" fill="' + INK + '"/>' +
+        '<circle cx="76" cy="52" r="5" fill="' + INK + '"/>' +
+        '<path d="M38 82 Q60 62 82 82" fill="none" stroke="' + INK + '" stroke-width="5" stroke-linecap="round"/>' +
+        '<path d="M44 58 q0 12 4 16" fill="none" stroke="' + BLUE + '" stroke-width="3" stroke-linecap="round"/>' +
+      '</svg>'
+    ),
+    faceAngry: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<circle cx="60" cy="60" r="46" fill="' + RED + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="44" cy="56" r="5" fill="' + INK + '"/>' +
+        '<circle cx="76" cy="56" r="5" fill="' + INK + '"/>' +
+        '<line x1="34" y1="40" x2="54" y2="50" stroke="' + INK + '" stroke-width="5" stroke-linecap="round"/>' +
+        '<line x1="86" y1="40" x2="66" y2="50" stroke="' + INK + '" stroke-width="5" stroke-linecap="round"/>' +
+        '<path d="M40 80 Q60 72 80 80" fill="none" stroke="' + INK + '" stroke-width="5" stroke-linecap="round"/>' +
+      '</svg>'
+    ),
+    faceExcited: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<circle cx="60" cy="60" r="46" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="44" cy="52" r="6" fill="' + INK + '"/>' +
+        '<circle cx="76" cy="52" r="6" fill="' + INK + '"/>' +
+        '<path d="M32 68 Q60 100 88 68 Q60 82 32 68 Z" fill="' + INK + '" stroke="' + INK + '" stroke-width="3" stroke-linejoin="round"/>' +
+        '<path d="M16 30 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 l6 -2 Z" fill="' + RED + '"/>' +
+        '<path d="M104 32 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="' + RED + '"/>' +
+      '</svg>'
+    ),
+    faceCalm: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<circle cx="60" cy="60" r="46" fill="' + TEAL + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<path d="M36 54 q8 -6 16 0" fill="none" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M68 54 q8 -6 16 0" fill="none" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M44 78 Q60 84 76 78" fill="none" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+      '</svg>'
+    ),
+    faceWorried: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<circle cx="60" cy="60" r="46" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="44" cy="56" r="4" fill="' + INK + '"/>' +
+        '<circle cx="76" cy="56" r="4" fill="' + INK + '"/>' +
+        '<path d="M36 46 q8 -6 16 0" fill="none" stroke="' + INK + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M68 46 q8 -6 16 0" fill="none" stroke="' + INK + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M40 80 q5 -5 10 0 q5 5 10 0 q5 -5 10 0 q5 5 10 0" fill="none" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+      '</svg>'
+    ),
+    faceSurprised: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<circle cx="60" cy="60" r="46" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="44" cy="52" r="7" fill="' + INK + '"/>' +
+        '<circle cx="76" cy="52" r="7" fill="' + INK + '"/>' +
+        '<ellipse cx="60" cy="82" rx="10" ry="13" fill="' + INK + '"/>' +
+      '</svg>'
+    ),
+    faceTired: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<circle cx="60" cy="60" r="46" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<path d="M36 58 q8 8 16 0" fill="none" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M68 58 q8 8 16 0" fill="none" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M42 80 q18 -4 36 0" fill="none" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+        '<text x="88" y="34" font-family="Nunito,sans-serif" font-size="16" font-weight="800" fill="' + INK + '">z</text>' +
+        '<text x="100" y="24" font-family="Nunito,sans-serif" font-size="12" font-weight="800" fill="' + INK + '">z</text>' +
+      '</svg>'
+    ),
+
+    // ─── Weather ─────────────────────────────────────────────────────────
+    // (sun is reused from the Solar System pack)
+    wxCloud: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M30 78 a22 22 0 0 1 6 -42 a26 26 0 0 1 48 4 a18 18 0 0 1 8 38 Z" ' +
+          'fill="#ffffff" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+      '</svg>'
+    ),
+    wxRain: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M26 60 a20 20 0 0 1 6 -38 a24 24 0 0 1 44 4 a16 16 0 0 1 8 34 Z" ' +
+          'fill="#d6deee" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<path d="M38 76 l-6 20" stroke="' + BLUE + '" stroke-width="5" stroke-linecap="round" fill="none"/>' +
+        '<path d="M58 76 l-6 24" stroke="' + BLUE + '" stroke-width="5" stroke-linecap="round" fill="none"/>' +
+        '<path d="M78 76 l-6 20" stroke="' + BLUE + '" stroke-width="5" stroke-linecap="round" fill="none"/>' +
+      '</svg>'
+    ),
+    wxSnow: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<g stroke="' + INK + '" stroke-width="5" stroke-linecap="round">' +
+          '<line x1="60" y1="14" x2="60" y2="106"/>' +
+          '<line x1="18" y1="60" x2="102" y2="60"/>' +
+          '<line x1="28" y1="28" x2="92" y2="92"/>' +
+          '<line x1="92" y1="28" x2="28" y2="92"/>' +
+        '</g>' +
+        '<g stroke="' + TEAL + '" stroke-width="3.5" stroke-linecap="round">' +
+          '<path d="M52 20 l8 8 l8 -8"/>' +
+          '<path d="M52 100 l8 -8 l8 8"/>' +
+          '<path d="M20 52 l8 8 l-8 8"/>' +
+          '<path d="M100 52 l-8 8 l8 8"/>' +
+        '</g>' +
+      '</svg>'
+    ),
+    wxLightning: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<polygon points="64,6 30,66 54,66 44,114 94,48 68,48 82,6" ' +
+          'fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+      '</svg>'
+    ),
+    wxWind: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<g fill="none" stroke="' + INK + '" stroke-width="6" stroke-linecap="round">' +
+          '<path d="M10 38 h78 a12 12 0 1 0 -12 -12"/>' +
+          '<path d="M10 64 h88 a10 10 0 1 1 -10 10"/>' +
+          '<path d="M10 90 h60"/>' +
+        '</g>' +
+      '</svg>'
+    ),
+    wxRainbow: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<g fill="none" stroke-width="7" stroke-linecap="butt">' +
+          '<path d="M14 96 a46 46 0 0 1 92 0" stroke="' + RED + '"/>' +
+          '<path d="M22 96 a38 38 0 0 1 76 0" stroke="#ff9a33"/>' +
+          '<path d="M30 96 a30 30 0 0 1 60 0" stroke="' + YELLOW + '"/>' +
+          '<path d="M38 96 a22 22 0 0 1 44 0" stroke="' + GREEN + '"/>' +
+          '<path d="M46 96 a14 14 0 0 1 28 0" stroke="' + BLUE + '"/>' +
+        '</g>' +
+        '<path d="M14 96 a46 46 0 0 1 92 0" fill="none" stroke="' + INK + '" stroke-width="2"/>' +
+        '<path d="M46 96 a14 14 0 0 1 28 0" fill="none" stroke="' + INK + '" stroke-width="2"/>' +
+      '</svg>'
+    ),
+    wxThermo: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<rect x="50" y="14" width="20" height="72" rx="10" fill="#fff" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="60" cy="96" r="16" fill="' + RED + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<rect x="54" y="54" width="12" height="40" fill="' + RED + '"/>' +
+        '<line x1="74" y1="28" x2="84" y2="28" stroke="' + INK + '" stroke-width="3"/>' +
+        '<line x1="74" y1="42" x2="80" y2="42" stroke="' + INK + '" stroke-width="3"/>' +
+        '<line x1="74" y1="56" x2="84" y2="56" stroke="' + INK + '" stroke-width="3"/>' +
+        '<line x1="74" y1="70" x2="80" y2="70" stroke="' + INK + '" stroke-width="3"/>' +
+      '</svg>'
+    ),
+    wxUmbrella: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M14 58 a46 30 0 0 1 92 0 Z" fill="' + RED + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<path d="M30 58 q14 -18 30 0" fill="none" stroke="' + INK + '" stroke-width="3"/>' +
+        '<path d="M60 58 q14 -18 30 0" fill="none" stroke="' + INK + '" stroke-width="3"/>' +
+        '<line x1="60" y1="58" x2="60" y2="104" stroke="' + INK + '" stroke-width="5" stroke-linecap="round"/>' +
+        '<path d="M54 108 q6 8 12 0" fill="none" stroke="' + INK + '" stroke-width="5" stroke-linecap="round"/>' +
+      '</svg>'
+    ),
+
+    // ─── Animals ─────────────────────────────────────────────────────────
+    aniDog: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M24 52 Q14 14 38 18 L44 44 Q60 34 76 44 L82 18 Q106 14 96 52 Q106 86 76 100 Q60 108 44 100 Q14 86 24 52 Z" ' +
+          'fill="#c8a06b" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<circle cx="46" cy="60" r="5" fill="' + INK + '"/>' +
+        '<circle cx="74" cy="60" r="5" fill="' + INK + '"/>' +
+        '<ellipse cx="60" cy="76" rx="8" ry="6" fill="' + INK + '"/>' +
+        '<path d="M56 82 q4 6 8 0" fill="none" stroke="' + INK + '" stroke-width="3"/>' +
+      '</svg>'
+    ),
+    aniCat: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<polygon points="20,48 30,14 54,36" fill="#a0a0a0" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<polygon points="100,48 90,14 66,36" fill="#a0a0a0" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<circle cx="60" cy="66" r="38" fill="#bdbdbd" stroke="' + INK + '" stroke-width="5"/>' +
+        '<ellipse cx="46" cy="60" rx="4" ry="7" fill="' + INK + '"/>' +
+        '<ellipse cx="74" cy="60" rx="4" ry="7" fill="' + INK + '"/>' +
+        '<polygon points="56,78 64,78 60,84" fill="' + INK + '"/>' +
+        '<path d="M60 84 q-4 6 -10 4" stroke="' + INK + '" stroke-width="2.5" fill="none"/>' +
+        '<path d="M60 84 q4 6 10 4" stroke="' + INK + '" stroke-width="2.5" fill="none"/>' +
+        '<g stroke="' + INK + '" stroke-width="2">' +
+          '<line x1="30" y1="72" x2="14" y2="70"/>' +
+          '<line x1="30" y1="80" x2="14" y2="82"/>' +
+          '<line x1="90" y1="72" x2="106" y2="70"/>' +
+          '<line x1="90" y1="80" x2="106" y2="82"/>' +
+        '</g>' +
+      '</svg>'
+    ),
+    aniFish: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M20 60 Q40 30 80 40 Q110 50 110 60 Q110 70 80 80 Q40 90 20 60 Z" ' +
+          'fill="' + TEAL + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<polygon points="20,60 0,40 6,60 0,80" fill="' + TEAL + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<circle cx="92" cy="56" r="4" fill="' + INK + '"/>' +
+        '<path d="M60 46 q8 14 0 28" fill="none" stroke="' + INK + '" stroke-width="3"/>' +
+      '</svg>'
+    ),
+    aniBird: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M22 80 Q22 42 56 38 Q92 34 100 60 Q104 76 84 90 Q56 104 32 96 Z" ' +
+          'fill="' + BLUE + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<polygon points="96,56 118,48 100,68" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="3" stroke-linejoin="round"/>' +
+        '<circle cx="88" cy="52" r="3" fill="' + INK + '"/>' +
+        '<path d="M44 70 Q60 60 76 70" fill="none" stroke="' + INK + '" stroke-width="3"/>' +
+        '<line x1="50" y1="96" x2="48" y2="108" stroke="' + INK + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<line x1="66" y1="96" x2="64" y2="108" stroke="' + INK + '" stroke-width="3" stroke-linecap="round"/>' +
+      '</svg>'
+    ),
+    aniElephant: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<ellipse cx="60" cy="60" rx="40" ry="34" fill="#a0a6b0" stroke="' + INK + '" stroke-width="5"/>' +
+        '<path d="M20 40 Q6 38 16 22" fill="#a0a6b0" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<path d="M100 40 Q114 38 104 22" fill="#a0a6b0" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<path d="M48 86 Q40 108 54 102 Q60 94 66 102 Q80 108 72 86" ' +
+          'fill="#a0a6b0" stroke="' + INK + '" stroke-width="4" stroke-linejoin="round"/>' +
+        '<circle cx="44" cy="56" r="4" fill="' + INK + '"/>' +
+        '<circle cx="76" cy="56" r="4" fill="' + INK + '"/>' +
+      '</svg>'
+    ),
+    aniLion: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<g fill="#c07628" stroke="' + INK + '" stroke-width="4" stroke-linejoin="round">' +
+          '<polygon points="60,6 68,22 84,10 80,28 100,22 92,38 112,42 96,52 112,68 94,70 102,88 84,82 86,100 70,90 64,108 56,108 50,90 34,100 36,82 18,88 26,68 8,68 24,52 8,42 28,38 20,22 40,28 36,10 52,22"/>' +
+        '</g>' +
+        '<circle cx="60" cy="60" r="30" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="4"/>' +
+        '<circle cx="50" cy="54" r="3.5" fill="' + INK + '"/>' +
+        '<circle cx="70" cy="54" r="3.5" fill="' + INK + '"/>' +
+        '<polygon points="56,66 64,66 60,72" fill="' + INK + '"/>' +
+        '<path d="M60 72 q-4 6 -8 4" stroke="' + INK + '" stroke-width="2" fill="none"/>' +
+        '<path d="M60 72 q4 6 8 4" stroke="' + INK + '" stroke-width="2" fill="none"/>' +
+      '</svg>'
+    ),
+    aniFrog: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<ellipse cx="60" cy="74" rx="46" ry="32" fill="' + GREEN + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="38" cy="44" r="16" fill="' + GREEN + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="82" cy="44" r="16" fill="' + GREEN + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="38" cy="44" r="6" fill="' + INK + '"/>' +
+        '<circle cx="82" cy="44" r="6" fill="' + INK + '"/>' +
+        '<path d="M40 82 Q60 96 80 82" fill="none" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+      '</svg>'
+    ),
+    aniSnake: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<path d="M14 28 C 60 10 60 60 14 60 C 60 60 60 110 106 92" ' +
+          'fill="none" stroke="' + GREEN + '" stroke-width="14" stroke-linecap="round"/>' +
+        '<path d="M14 28 C 60 10 60 60 14 60 C 60 60 60 110 106 92" ' +
+          'fill="none" stroke="' + INK + '" stroke-width="3"/>' +
+        '<circle cx="102" cy="90" r="4" fill="' + INK + '"/>' +
+        '<path d="M108 92 l8 -2 l-8 -2 z" fill="' + RED + '" stroke="' + INK + '" stroke-width="2"/>' +
+      '</svg>'
+    ),
+    aniRabbit: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<ellipse cx="42" cy="32" rx="10" ry="24" fill="#f0e5d2" stroke="' + INK + '" stroke-width="5"/>' +
+        '<ellipse cx="78" cy="32" rx="10" ry="24" fill="#f0e5d2" stroke="' + INK + '" stroke-width="5"/>' +
+        '<ellipse cx="42" cy="32" rx="4" ry="14" fill="#f9b8c4"/>' +
+        '<ellipse cx="78" cy="32" rx="4" ry="14" fill="#f9b8c4"/>' +
+        '<circle cx="60" cy="76" r="30" fill="#f0e5d2" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="50" cy="70" r="3.5" fill="' + INK + '"/>' +
+        '<circle cx="70" cy="70" r="3.5" fill="' + INK + '"/>' +
+        '<ellipse cx="60" cy="84" rx="5" ry="3" fill="#f9b8c4" stroke="' + INK + '" stroke-width="2"/>' +
+        '<path d="M60 87 q-4 8 -10 4" stroke="' + INK + '" stroke-width="2" fill="none"/>' +
+        '<path d="M60 87 q4 8 10 4" stroke="' + INK + '" stroke-width="2" fill="none"/>' +
+      '</svg>'
+    ),
+    aniBee: svg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+        '<ellipse cx="60" cy="70" rx="34" ry="24" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<path d="M46 50 L46 90" stroke="' + INK + '" stroke-width="7"/>' +
+        '<path d="M62 48 L62 92" stroke="' + INK + '" stroke-width="7"/>' +
+        '<path d="M78 54 L78 88" stroke="' + INK + '" stroke-width="7"/>' +
+        '<ellipse cx="40" cy="46" rx="16" ry="10" fill="#ffffff" stroke="' + INK + '" stroke-width="3" transform="rotate(-20 40 46)"/>' +
+        '<ellipse cx="80" cy="46" rx="16" ry="10" fill="#ffffff" stroke="' + INK + '" stroke-width="3" transform="rotate(20 80 46)"/>' +
+        '<circle cx="32" cy="62" r="3" fill="' + INK + '"/>' +
+      '</svg>'
+    ),
   };
 
   const IB_BIO_MOLECULES = {
@@ -871,11 +1147,139 @@
     ],
   };
 
+  // ─── Emotions & Feelings ───────────────────────────────────────────────
+  const EMOTIONS = {
+    id: 'emotions',
+    name: 'Emotions & Feelings',
+    symbolsPerCard: 6,
+    abbreviations: {},
+    symbols: [
+      { type: 'image', value: ICONS.faceHappy,     display: 'happy' },
+      { type: 'image', value: ICONS.faceSad,       display: 'sad' },
+      { type: 'image', value: ICONS.faceAngry,     display: 'angry' },
+      { type: 'image', value: ICONS.faceExcited,   display: 'excited' },
+      { type: 'image', value: ICONS.faceCalm,      display: 'calm' },
+      { type: 'image', value: ICONS.faceWorried,   display: 'worried' },
+      { type: 'image', value: ICONS.faceSurprised, display: 'surprised' },
+      { type: 'image', value: ICONS.faceTired,     display: 'tired' },
+      { type: 'word', value: 'proud' },
+      { type: 'word', value: 'nervous' },
+      { type: 'word', value: 'grateful' },
+      { type: 'word', value: 'bored' },
+      { type: 'word', value: 'shy' },
+      { type: 'word', value: 'brave' },
+      { type: 'word', value: 'jealous' },
+      { type: 'word', value: 'lonely' },
+      { type: 'word', value: 'guilty' },
+      { type: 'word', value: 'hopeful' },
+      { type: 'word', value: 'curious' },
+      { type: 'word', value: 'relieved' },
+      { type: 'word', value: 'kind' },
+      { type: 'word', value: 'cheerful' },
+      { type: 'word', value: 'anxious' },
+      { type: 'word', value: 'content' },
+      { type: 'word', value: 'thrilled' },
+      { type: 'word', value: 'scared' },
+      { type: 'word', value: 'joyful' },
+      { type: 'word', value: 'furious' },
+      { type: 'word', value: 'silly' },
+      { type: 'word', value: 'loving' },
+      { type: 'word', value: 'upset' },
+    ],
+  };
+
+  // ─── Weather ───────────────────────────────────────────────────────────
+  const WEATHER = {
+    id: 'weather',
+    name: 'Weather',
+    symbolsPerCard: 6,
+    abbreviations: {
+      'forecast': 'forecst',
+    },
+    symbols: [
+      { type: 'image', value: ICONS.sun,         display: 'sun' },
+      { type: 'image', value: ICONS.wxCloud,     display: 'cloud' },
+      { type: 'image', value: ICONS.wxRain,      display: 'rain' },
+      { type: 'image', value: ICONS.wxSnow,      display: 'snow' },
+      { type: 'image', value: ICONS.wxLightning, display: 'lightning' },
+      { type: 'image', value: ICONS.wxWind,      display: 'wind' },
+      { type: 'image', value: ICONS.wxRainbow,   display: 'rainbow' },
+      { type: 'image', value: ICONS.wxThermo,    display: 'thermometer' },
+      { type: 'image', value: ICONS.wxUmbrella,  display: 'umbrella' },
+      { type: 'word', value: 'sunny' },
+      { type: 'word', value: 'cloudy' },
+      { type: 'word', value: 'rainy' },
+      { type: 'word', value: 'snowy' },
+      { type: 'word', value: 'storm' },
+      { type: 'word', value: 'breeze' },
+      { type: 'word', value: 'hot' },
+      { type: 'word', value: 'cold' },
+      { type: 'word', value: 'warm' },
+      { type: 'word', value: 'cool' },
+      { type: 'word', value: 'dry' },
+      { type: 'word', value: 'wet' },
+      { type: 'word', value: 'fog' },
+      { type: 'word', value: 'mist' },
+      { type: 'word', value: 'dew' },
+      { type: 'word', value: 'drizzle' },
+      { type: 'word', value: 'humid' },
+      { type: 'word', value: 'frost' },
+      { type: 'word', value: 'mild' },
+      { type: 'word', value: 'forecast' },
+      { type: 'word', value: 'hail' },
+      { type: 'word', value: 'tornado' },
+    ],
+  };
+
+  // ─── Animals ───────────────────────────────────────────────────────────
+  const ANIMALS = {
+    id: 'animals',
+    name: 'Animals',
+    symbolsPerCard: 6,
+    abbreviations: {},
+    symbols: [
+      { type: 'image', value: ICONS.aniDog,      display: 'dog' },
+      { type: 'image', value: ICONS.aniCat,      display: 'cat' },
+      { type: 'image', value: ICONS.aniFish,     display: 'fish' },
+      { type: 'image', value: ICONS.aniBird,     display: 'bird' },
+      { type: 'image', value: ICONS.aniElephant, display: 'elephant' },
+      { type: 'image', value: ICONS.aniLion,     display: 'lion' },
+      { type: 'image', value: ICONS.aniFrog,     display: 'frog' },
+      { type: 'image', value: ICONS.aniSnake,    display: 'snake' },
+      { type: 'image', value: ICONS.aniRabbit,   display: 'rabbit' },
+      { type: 'image', value: ICONS.aniBee,      display: 'bee' },
+      { type: 'word', value: 'cow' },
+      { type: 'word', value: 'pig' },
+      { type: 'word', value: 'sheep' },
+      { type: 'word', value: 'horse' },
+      { type: 'word', value: 'duck' },
+      { type: 'word', value: 'goose' },
+      { type: 'word', value: 'tiger' },
+      { type: 'word', value: 'bear' },
+      { type: 'word', value: 'wolf' },
+      { type: 'word', value: 'fox' },
+      { type: 'word', value: 'deer' },
+      { type: 'word', value: 'mouse' },
+      { type: 'word', value: 'owl' },
+      { type: 'word', value: 'eagle' },
+      { type: 'word', value: 'whale' },
+      { type: 'word', value: 'shark' },
+      { type: 'word', value: 'zebra' },
+      { type: 'word', value: 'giraffe' },
+      { type: 'word', value: 'panda' },
+      { type: 'word', value: 'monkey' },
+      { type: 'word', value: 'parrot' },
+    ],
+  };
+
   const PACKS = [
     IB_BIO_MOLECULES,
     GCSE_CHEMISTRY,
     SOLAR_SYSTEM,
     BODY_PARTS,
+    ANIMALS,
+    WEATHER,
+    EMOTIONS,
     SPANISH_BASICS,
     FRENCH_BASICS,
     SHAPES_NUMBERS,
@@ -889,12 +1293,22 @@
     return PACKS.find((p) => p.id === id) || null;
   }
 
-  function apply(pack) {
+  function apply(pack, opts) {
     if (!pack) return { ok: false, reason: 'no pack' };
+    const append = !!(opts && opts.append);
     const c = window.FindIt.content;
-    c.reset();
-    c.setName(pack.name);
-    c.setSymbolsPerCard(pack.symbolsPerCard);
+    const before = c.get().symbols.length;
+
+    if (!append) {
+      c.reset();
+      c.setName(pack.name);
+      c.setSymbolsPerCard(pack.symbolsPerCard);
+    } else if (!c.get().setName) {
+      // In append mode, adopt the pack's name only if the set is
+      // unnamed so we don't overwrite the user's custom title.
+      c.setName(pack.name);
+    }
+
     for (const [term, short] of Object.entries(pack.abbreviations || {})) {
       c.setAbbreviation(term, short);
     }
@@ -902,7 +1316,9 @@
       if (s.type === 'image') c.addImage(s.value, { label: s.display });
       else c.addWord(s.value);
     }
-    return { ok: true, loaded: pack.symbols.length };
+
+    const after = c.get().symbols.length;
+    return { ok: true, loaded: pack.symbols.length, added: after - before, append };
   }
 
   window.FindIt = window.FindIt || {};

@@ -168,8 +168,9 @@
   // ── starter packs ──────────────────────────────────────────────────────
   function initPacks() {
     const select = document.getElementById('packSelect');
-    const btn = document.getElementById('loadPackBtn');
-    if (!select || !btn) return;
+    const addBtn = document.getElementById('addPackBtn');
+    const replaceBtn = document.getElementById('replacePackBtn');
+    if (!select || !addBtn || !replaceBtn) return;
     const packs = (FindIt.packs && FindIt.packs.all) || [];
     for (const p of packs) {
       const opt = document.createElement('option');
@@ -177,34 +178,44 @@
       opt.textContent = p.name + ' (' + p.symbols.length + ' symbols)';
       select.appendChild(opt);
     }
-    btn.addEventListener('click', async () => {
+
+    // Add: append the pack to the current set (no confirm; this is the
+    // safe/reversible action).
+    addBtn.addEventListener('click', () => {
+      const id = select.value;
+      if (!id) return;
+      const pack = FindIt.packs.get(id);
+      if (!pack) return;
+      const res = FindIt.packs.apply(pack, { append: true });
+      if (res.ok) {
+        const nameEl = document.getElementById('setName');
+        if (nameEl) nameEl.value = C().get().setName || '';
+        toast('Added ' + pack.name + ': +' + res.added + ' symbol(s).');
+      }
+    });
+
+    // Replace: wipe current set and load just this pack. Confirm if there's
+    // something to lose.
+    replaceBtn.addEventListener('click', async () => {
       const id = select.value;
       if (!id) return;
       const pack = FindIt.packs.get(id);
       if (!pack) return;
       const cur = C().get().symbols.length;
-      const ok = await confirmDialog(
-        cur > 0
-          ? {
-              tag: 'LOAD PACK',
-              title: 'Replace current set?',
-              message: 'This will replace your ' + cur + ' symbol(s) with "' + pack.name + '". Your current set will be lost.',
-              confirmText: 'Replace',
-              cancelText: 'Keep current',
-              danger: true,
-            }
-          : {
-              tag: 'LOAD PACK',
-              title: 'Load "' + pack.name + '"?',
-              message: pack.symbols.length + ' symbols, ' + pack.symbolsPerCard + ' per card.',
-              confirmText: 'Load',
-            }
-      );
+      const ok = cur === 0 ? true : await confirmDialog({
+        tag: 'REPLACE',
+        title: 'Replace current set?',
+        message: 'This will clear your ' + cur + ' symbol(s) and load "' + pack.name + '" instead.',
+        confirmText: 'Replace',
+        cancelText: 'Keep current',
+        danger: true,
+      });
       if (!ok) return;
       const res = FindIt.packs.apply(pack);
       if (res.ok) {
         toast('Loaded ' + pack.name + ': ' + res.loaded + ' symbols.');
-        document.getElementById('setName').value = pack.name;
+        const nameEl = document.getElementById('setName');
+        if (nameEl) nameEl.value = pack.name;
       }
     });
   }
