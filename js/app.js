@@ -161,6 +161,8 @@
     const btn = document.getElementById('modeToggle');
     if (btn) btn.textContent = mode === 'simple' ? 'Advanced' : 'Simple';
     saveSettings({ mode: mode });
+    // When flipping into Simple, render the preview if we have content.
+    if (mode === 'simple') scheduleHeroPreview();
   }
 
   function initMode() {
@@ -239,6 +241,66 @@
     if (hint && FindIt.exporter && FindIt.exporter.printLayout) {
       const L = FindIt.exporter.printLayout(state.printSize);
       hint.textContent = L.cols * L.rows + ' per A4 page · ' + L.cardMM + 'mm cards';
+    }
+    scheduleHeroPreview();
+  }
+
+  let heroPreviewTimer = null;
+  function scheduleHeroPreview() {
+    clearTimeout(heroPreviewTimer);
+    heroPreviewTimer = setTimeout(renderHeroPreview, 100);
+  }
+
+  async function renderHeroPreview() {
+    // Only render when the hero is visible (Simple mode) to avoid wasted work.
+    if (state.mode !== 'simple') return;
+    const wrap = document.getElementById('heroPreview');
+    const caption = document.getElementById('heroPreviewCaption');
+    if (!wrap) return;
+    const content = C().get();
+    if (!content.symbols.length) {
+      wrap.hidden = true;
+      return;
+    }
+    wrap.hidden = false;
+
+    const deck = FindIt.deck.buildDeck(content.symbols, content.symbolsPerCard);
+    // Pick two cards that share a real symbol (not a blank) if possible, so
+    // the 'every pair shares one' claim lands visually.
+    let a = 0, b = 1;
+    if (deck.blanksAdded > 0) {
+      outer:
+      for (let i = 0; i < deck.cards.length; i++) {
+        for (let j = i + 1; j < deck.cards.length; j++) {
+          const ids = new Set(deck.cards[i].map((s) => s.id));
+          const shared = deck.cards[j].find((s) => ids.has(s.id));
+          if (shared && !shared.isBlank) { a = i; b = j; break outer; }
+        }
+      }
+    }
+
+    const canvases = wrap.querySelectorAll('canvas');
+    if (canvases.length < 2) return;
+    await Promise.all([
+      FindIt.renderer.renderCard(canvases[0], deck.cards[a], {
+        size: 640, display: false,
+        tint: FindIt.renderer.pickTint(a),
+        shape: state.cardShape,
+        sizeVariance: content.sizeVariance,
+        symbolsPerCard: content.symbolsPerCard,
+      }),
+      FindIt.renderer.renderCard(canvases[1], deck.cards[b], {
+        size: 640, display: false,
+        tint: FindIt.renderer.pickTint(b),
+        shape: state.cardShape,
+        sizeVariance: content.sizeVariance,
+        symbolsPerCard: content.symbolsPerCard,
+      }),
+    ]);
+
+    if (caption) {
+      caption.textContent = (content.setName || 'Your deck') +
+        ' · ' + deck.cards.length + ' cards, ' + content.symbolsPerCard + ' symbols per card';
     }
   }
 
