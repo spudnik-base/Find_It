@@ -632,7 +632,167 @@
     ],
   };
 
-  const PACKS = [IB_BIO_MOLECULES, GCSE_CHEMISTRY, SOLAR_SYSTEM, BODY_PARTS, SPANISH_BASICS, KS1_READING];
+  // ─── French Basics ─────────────────────────────────────────────────────
+  const FRENCH_BASICS = {
+    id: 'french-basics',
+    name: 'French Basics',
+    symbolsPerCard: 6,
+    abbreviations: {
+      "s'il vous plaît": 'svp',
+      'au revoir': 'au rev.',
+      'bonne nuit': 'bon.nuit',
+    },
+    symbols: [
+      { type: 'image', value: ICONS.wave,  display: 'bonjour' },
+      { type: 'image', value: ICONS.heart, display: 'amour' },
+      { type: 'word', value: 'au revoir' },
+      { type: 'word', value: 'merci' },
+      { type: 'word', value: "s'il vous plaît" },
+      { type: 'word', value: 'oui' },
+      { type: 'word', value: 'non' },
+      { type: 'word', value: 'bonne nuit' },
+      { type: 'word', value: 'un' },
+      { type: 'word', value: 'deux' },
+      { type: 'word', value: 'trois' },
+      { type: 'word', value: 'quatre' },
+      { type: 'word', value: 'cinq' },
+      { type: 'word', value: 'six' },
+      { type: 'word', value: 'sept' },
+      { type: 'word', value: 'rouge' },
+      { type: 'word', value: 'bleu' },
+      { type: 'word', value: 'vert' },
+      { type: 'word', value: 'jaune' },
+      { type: 'word', value: 'noir' },
+      { type: 'word', value: 'blanc' },
+      { type: 'word', value: 'chat' },
+      { type: 'word', value: 'chien' },
+      { type: 'word', value: 'maison' },
+      { type: 'word', value: 'école' },
+      { type: 'word', value: 'livre' },
+      { type: 'word', value: 'ami' },
+      { type: 'word', value: 'famille' },
+      { type: 'word', value: 'mère' },
+      { type: 'word', value: 'père' },
+      { type: 'word', value: 'eau' },
+    ],
+  };
+
+  // ─── KS1 Phonics Phase 3 ───────────────────────────────────────────────
+  // A mix of Phase 2 single-letter sounds and Phase 3 digraphs/trigraphs.
+  const KS1_PHONICS = {
+    id: 'ks1-phonics',
+    name: 'KS1 Phonics (Phase 2-3)',
+    symbolsPerCard: 6,
+    abbreviations: {},
+    symbols: [
+      // Phase 2 single-letter sounds
+      { type: 'word', value: 's' },
+      { type: 'word', value: 'a' },
+      { type: 'word', value: 't' },
+      { type: 'word', value: 'p' },
+      { type: 'word', value: 'i' },
+      { type: 'word', value: 'n' },
+      { type: 'word', value: 'm' },
+      { type: 'word', value: 'd' },
+      { type: 'word', value: 'g' },
+      { type: 'word', value: 'o' },
+      { type: 'word', value: 'c' },
+      { type: 'word', value: 'e' },
+      { type: 'word', value: 'u' },
+      { type: 'word', value: 'r' },
+      { type: 'word', value: 'h' },
+      { type: 'word', value: 'b' },
+      // Phase 3 digraphs + trigraphs
+      { type: 'word', value: 'ck' },
+      { type: 'word', value: 'sh' },
+      { type: 'word', value: 'ch' },
+      { type: 'word', value: 'th' },
+      { type: 'word', value: 'ng' },
+      { type: 'word', value: 'ai' },
+      { type: 'word', value: 'ee' },
+      { type: 'word', value: 'igh' },
+      { type: 'word', value: 'oa' },
+      { type: 'word', value: 'oo' },
+      { type: 'word', value: 'ar' },
+      { type: 'word', value: 'or' },
+      { type: 'word', value: 'ur' },
+      { type: 'word', value: 'ow' },
+      { type: 'word', value: 'oi' },
+    ],
+  };
+
+  // ─── KS2 Tier-2 Vocabulary ─────────────────────────────────────────────
+  // Y3-6 reading / writing vocabulary, all 4-8 letters so the 8-char
+  // display cap doesn't kick in.
+  const KS2_VOCAB = {
+    id: 'ks2-vocab',
+    name: 'KS2 Tier-2 Vocabulary',
+    symbolsPerCard: 6,
+    abbreviations: {},
+    symbols: [
+      { type: 'word', value: 'although' },
+      { type: 'word', value: 'suddenly' },
+      { type: 'word', value: 'enormous' },
+      { type: 'word', value: 'furious' },
+      { type: 'word', value: 'curious' },
+      { type: 'word', value: 'ancient' },
+      { type: 'word', value: 'fierce' },
+      { type: 'word', value: 'gentle' },
+      { type: 'word', value: 'rapid' },
+      { type: 'word', value: 'pleasant' },
+      { type: 'word', value: 'unusual' },
+      { type: 'word', value: 'ordinary' },
+      { type: 'word', value: 'valuable' },
+      { type: 'word', value: 'generous' },
+      { type: 'word', value: 'vicious' },
+      { type: 'word', value: 'peculiar' },
+      { type: 'word', value: 'average' },
+      { type: 'word', value: 'precious' },
+      { type: 'word', value: 'obvious' },
+      { type: 'word', value: 'various' },
+      { type: 'word', value: 'cautious' },
+      { type: 'word', value: 'clever' },
+      { type: 'word', value: 'anxious' },
+      { type: 'word', value: 'modest' },
+      { type: 'word', value: 'weary' },
+      { type: 'word', value: 'humble' },
+      { type: 'word', value: 'sincere' },
+      { type: 'word', value: 'eager' },
+      { type: 'word', value: 'merry' },
+      { type: 'word', value: 'bold' },
+      { type: 'word', value: 'grim' },
+    ],
+  };
+
+  // ─── Times Tables 2x, 5x, 10x ──────────────────────────────────────────
+  // 11 items of 2x + 10 of 5x + 10 of 10x = 31. All rendered as "2×1"
+  // etc. using the unicode multiplication sign.
+  const TIMES_TABLES = {
+    id: 'times-tables',
+    name: 'Times Tables (2×, 5×, 10×)',
+    symbolsPerCard: 6,
+    abbreviations: {},
+    symbols: (function () {
+      const out = [];
+      for (let k = 1; k <= 11; k++) out.push({ type: 'word', value: '2×' + k });
+      for (let k = 1; k <= 10; k++) out.push({ type: 'word', value: '5×' + k });
+      for (let k = 1; k <= 10; k++) out.push({ type: 'word', value: '10×' + k });
+      return out;
+    })(),
+  };
+
+  const PACKS = [
+    IB_BIO_MOLECULES,
+    GCSE_CHEMISTRY,
+    SOLAR_SYSTEM,
+    BODY_PARTS,
+    SPANISH_BASICS,
+    FRENCH_BASICS,
+    KS1_READING,
+    KS1_PHONICS,
+    KS2_VOCAB,
+    TIMES_TABLES,
+  ];
 
   function get(id) {
     return PACKS.find((p) => p.id === id) || null;
