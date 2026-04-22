@@ -58,6 +58,8 @@ body {
   letter-spacing: 1px;
 }
 
+.toolbar-actions { display: flex; gap: 12px; align-items: center; }
+
 .save-status {
   font-family: 'Caveat', cursive;
   font-size: 1rem;
@@ -65,6 +67,44 @@ body {
 }
 .save-status.saved { color: var(--teal); }
 .save-status.saving { color: var(--yellow); }
+
+/* ── Buttons ── */
+.btn {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 1.5px;
+  font-size: 0.95rem;
+  padding: 7px 16px;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  background: transparent;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.btn:active { transform: translate(3px, 3px); box-shadow: none !important; }
+
+.btn-primary {
+  background: var(--yellow);
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.btn-primary:hover {
+  box-shadow: 4px 4px 0 var(--ink);
+  transform: translate(-1px, -1px);
+}
+
+.btn-ghost {
+  color: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.2);
+  font-size: 0.82rem;
+  padding: 5px 12px;
+}
+.btn-ghost:hover { color: white; border-color: white; }
+
+.panel .btn-ghost {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.panel .btn-ghost:hover { background: var(--yellow); }
 
 /* ── Layout ── */
 .container {
@@ -77,7 +117,7 @@ body {
   background: white;
   border: var(--border);
   box-shadow: var(--shadow-lg);
-  padding: 24px 28px;
+  padding: 28px 30px;
   margin-bottom: 28px;
   position: relative;
 }
@@ -92,33 +132,227 @@ body {
   border: var(--border);
   box-shadow: var(--shadow);
   display: inline-block;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
-.panel p { margin-bottom: 10px; line-height: 1.6; font-size: 0.95rem; }
+/* ── Form fields ── */
+.field { display: block; margin-bottom: 18px; }
+.field-label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 6px;
+}
+.field input[type="text"],
+.field textarea,
+.abbr-form input {
+  width: 100%;
+  font: inherit;
+  font-size: 1rem;
+  padding: 10px 12px;
+  border: var(--border);
+  background: var(--paper);
+  color: var(--ink);
+  outline: none;
+}
+.field input[type="text"]:focus,
+.field textarea:focus,
+.abbr-form input:focus {
+  background: white;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.field textarea {
+  resize: vertical;
+  font-family: 'Courier New', monospace;
+  font-size: 0.92rem;
+}
 
-.panel ul { list-style: none; padding: 0; margin-top: 10px; }
-.panel ul li {
+.hint {
+  font-size: 0.82rem;
+  color: #555;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.row { display: flex; gap: 10px; align-items: center; margin-top: 12px; }
+
+/* ── Input tabs ── */
+.input-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--ink);
+}
+.tab {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 1.5px;
+  font-size: 0.95rem;
+  padding: 8px 16px;
+  border: 2px solid var(--ink);
+  border-bottom: none;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  margin-bottom: -2px;
+}
+.tab.active {
+  background: var(--yellow);
+  transform: translateY(2px);
+  box-shadow: inset 0 -3px 0 var(--ink);
+}
+
+.tab-panel { padding-top: 4px; }
+
+/* ── Dropzone ── */
+.dropzone {
+  border: 3px dashed var(--ink);
+  background: var(--paper);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.dropzone.over { background: var(--yellow); }
+.dropzone p { margin: 4px 0; font-size: 0.95rem; }
+.link { text-decoration: underline; cursor: pointer; font-weight: 700; }
+
+/* ── Chip grid ── */
+.chipgrid-wrap { margin-top: 24px; }
+.chipgrid-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.chipgrid-count {
+  font-family: 'Bangers', cursive;
+  font-size: 1.05rem;
+  letter-spacing: 2px;
+}
+.chipgrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 52px;
+  padding: 10px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+}
+.chipgrid:empty::before {
+  content: 'No symbols yet — add some above.';
+  color: #888;
+  font-style: italic;
+  align-self: center;
+  margin: auto;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 2px solid var(--ink);
+  padding: 4px 6px 4px 10px;
+  font-size: 0.92rem;
+  box-shadow: 2px 2px 0 var(--ink);
+  max-width: 100%;
+}
+.chip.image { padding-left: 4px; }
+.chip img {
+  width: 24px; height: 24px; object-fit: cover;
+  border: 1px solid var(--ink);
+}
+.chip .chip-value {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+.chip .chip-display {
+  color: var(--red);
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-left: 2px;
+}
+.chip button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--ink);
+  padding: 0 4px;
+}
+.chip button:hover { color: var(--red); }
+
+/* ── Counter ── */
+.counter { margin-top: 18px; }
+.counter-bar {
+  position: relative;
+  height: 14px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  overflow: hidden;
+}
+.counter-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--teal);
+  transition: width 0.2s;
+}
+.counter-fill.full { background: var(--green); }
+.counter-fill.short { background: var(--red); }
+.counter-text {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.counter-text.warn { color: var(--red); }
+.counter-text.ok { color: var(--green); }
+
+/* ── Abbreviation panel ── */
+.abbr-panel {
+  margin-top: 24px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  padding: 12px 16px;
+}
+.abbr-panel summary {
+  cursor: pointer;
+  font-family: 'Bangers', cursive;
+  letter-spacing: 1.5px;
+  font-size: 1rem;
+  padding: 4px 0;
+}
+.abbr-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 8px;
+  margin-top: 10px;
+}
+.abbr-list { list-style: none; padding: 0; margin-top: 10px; }
+.abbr-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 6px 0;
   border-bottom: 1px dashed var(--ink);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
-.panel ul li:last-child { border-bottom: none; }
-
-code {
-  font-family: 'Courier New', monospace;
-  background: var(--ink);
-  color: var(--yellow);
-  padding: 2px 7px;
-  font-size: 0.85rem;
-  font-weight: 700;
+.abbr-list li:last-child { border-bottom: none; }
+.abbr-list .abbr-short {
+  background: var(--yellow);
+  padding: 0 6px;
+  font-weight: 800;
+  margin-right: 8px;
 }
 
 /* ── Print ── */
 @media print {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }

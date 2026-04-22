@@ -12,19 +12,78 @@
 <body>
   <div class="toolbar">
     <div class="toolbar-logo">FIND IT <span>— card generator</span></div>
-    <span class="save-status" id="saveStatus">phase 1 scaffold</span>
+    <div class="toolbar-actions">
+      <span class="save-status saved" id="saveStatus">&#10003; saved</span>
+      <button class="btn btn-ghost" id="resetBtn" type="button">&#8634; reset</button>
+    </div>
   </div>
 
   <main class="container">
-    <section class="panel">
-      <h2>Scaffold check</h2>
-      <p id="boot-status">Loading…</p>
-      <p>Open the DevTools console and run <code>FindIt.selfTest()</code> to verify the projective-plane generator.</p>
-    </section>
+    <!-- Screen 1: Content Editor -->
+    <section class="panel" id="screen-editor">
+      <h2>Content</h2>
 
-    <section class="panel">
-      <h2>Valid set shapes</h2>
-      <ul id="set-shapes"></ul>
+      <label class="field">
+        <span class="field-label">Subject / set name</span>
+        <input id="setName" type="text" placeholder="e.g. IB Biology — Biological Molecules">
+      </label>
+
+      <div class="input-tabs" role="tablist">
+        <button class="tab active" data-tab="words" type="button">Words</button>
+        <button class="tab" data-tab="csv" type="button">CSV</button>
+        <button class="tab" data-tab="images" type="button">Images</button>
+      </div>
+
+      <div class="tab-panel" data-panel="words">
+        <label class="field">
+          <span class="field-label">Add a term (Enter, comma, or paste a list)</span>
+          <input id="wordInput" type="text" autocomplete="off" placeholder="mitosis, amino acid, haemoglobin…">
+        </label>
+        <p class="hint">Terms longer than 8 characters auto-abbreviate on cards. Set a custom short form in the abbreviations panel below.</p>
+      </div>
+
+      <div class="tab-panel" data-panel="csv" hidden>
+        <label class="field">
+          <span class="field-label">Paste CSV (one term per line, optional abbreviation after a comma)</span>
+          <textarea id="csvInput" rows="6" placeholder="mitosis&#10;amino acid, aa&#10;haemoglobin, Hb"></textarea>
+        </label>
+        <div class="row">
+          <button class="btn btn-primary" id="csvImportBtn" type="button">Import CSV</button>
+          <label class="btn btn-ghost" for="csvFile">… or upload .csv</label>
+          <input id="csvFile" type="file" accept=".csv,text/csv,text/plain" hidden>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-panel="images" hidden>
+        <div class="dropzone" id="imageDrop" tabindex="0">
+          <p><b>Drop images here</b> — or <label for="imageFile" class="link">browse…</label></p>
+          <input id="imageFile" type="file" accept="image/*" multiple hidden>
+          <p class="hint">Stored locally as base64. Many images can fill your browser's storage fast.</p>
+        </div>
+      </div>
+
+      <div class="chipgrid-wrap">
+        <div class="chipgrid-head">
+          <span id="symbolsCount" class="chipgrid-count">0 symbols</span>
+          <button class="btn btn-ghost" id="clearSymbolsBtn" type="button">clear all</button>
+        </div>
+        <div class="chipgrid" id="chipgrid" aria-live="polite"></div>
+      </div>
+
+      <div class="counter" id="counter">
+        <div class="counter-bar"><div class="counter-fill" id="counterFill"></div></div>
+        <div class="counter-text" id="counterText"></div>
+      </div>
+
+      <details class="abbr-panel">
+        <summary>Abbreviations (override the 8-char cap)</summary>
+        <div class="abbr-form">
+          <input id="abbrTerm" type="text" placeholder="full term (e.g. amino acid)">
+          <input id="abbrShort" type="text" placeholder="short (e.g. aa)" maxlength="8">
+          <button class="btn btn-primary" id="abbrAddBtn" type="button">save</button>
+        </div>
+        <ul class="abbr-list" id="abbrList"></ul>
+      </details>
     </section>
   </main>
 
