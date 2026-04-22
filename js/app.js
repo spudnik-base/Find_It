@@ -528,9 +528,19 @@
       });
     });
 
-    // Restore shape from settings on boot.
+    // Print-size segmented control. Applies to both Print and PDF export.
+    document.querySelectorAll('[data-size]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.printSize = btn.dataset.size;
+        saveSettings({ printSize: state.printSize });
+        refreshConfigUI();
+      });
+    });
+
+    // Restore persisted prefs on boot.
     const settings = loadSettings();
     if (settings.cardShape) state.cardShape = settings.cardShape;
+    if (settings.printSize) state.printSize = settings.printSize;
   }
 
   // Return the symbols-per-card value that yields the largest complete deck
@@ -552,6 +562,14 @@
     document.querySelectorAll('[data-shape]').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.shape === state.cardShape);
     });
+    document.querySelectorAll('[data-size]').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.size === state.printSize);
+    });
+    const sizeHint = document.getElementById('sizeHint');
+    if (sizeHint && FindIt.exporter && FindIt.exporter.printLayout) {
+      const L = FindIt.exporter.printLayout(state.printSize);
+      sizeHint.textContent = L.cols + '×' + L.rows + ' grid of ' + L.cardMM + 'mm cards (' + (L.cols * L.rows) + ' per A4 page).';
+    }
     const vSlider = document.getElementById('varianceSlider');
     const vLabel = document.getElementById('varianceLabel');
     if (vSlider) vSlider.value = String(s.sizeVariance || 2);
@@ -591,6 +609,7 @@
   const PREVIEW_COUNT = 6;
   const state = {
     cardShape: 'circle',
+    printSize: 'standard',
     deck: null,
     previewIndices: [],
     selected: [],
@@ -792,7 +811,7 @@
     }
     setStatus('Building deck…');
     try {
-      const result = await FindIt.exporter.printDeck({ shape: state.cardShape });
+      const result = await FindIt.exporter.printDeck({ shape: state.cardShape, size: state.printSize });
       setStatus('Opened print dialog for ' + result.cards + ' cards.');
     } catch (err) {
       console.error(err);
@@ -811,7 +830,7 @@
     if (button) button.disabled = true;
     setStatus('Building PDF…');
     try {
-      const result = await FindIt.exporter.downloadPDF({ shape: state.cardShape });
+      const result = await FindIt.exporter.downloadPDF({ shape: state.cardShape, size: state.printSize });
       setStatus('Downloaded ' + result.filename + ' (' + result.cards + ' cards).');
       toast('PDF saved: ' + result.filename);
     } catch (err) {

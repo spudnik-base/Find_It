@@ -13,12 +13,18 @@
 
   const PRINT_CONTAINER_ID = 'findit-print-container';
 
-  // Print layout per symbols-per-card: 8-per-card gets physically larger
-  // cards (2x3 of 68mm) so each symbol stays legible. 4 and 6 keep the
-  // classic 3x3 of 55mm. All values in millimetres for A4 portrait.
-  function printLayoutForN(n) {
-    if (n >= 8) return { cardMM: 68, cols: 2, rows: 3, gutter: 6 };
-    return       { cardMM: 55, cols: 3, rows: 3, gutter: 5 };
+  // Print layout presets (all mm, A4 portrait):
+  //   compact  -> 3x3 of 55mm (9 per page; traditional Dobble size)
+  //   standard -> 2x3 of 68mm (6 per page; easier to read)
+  //   large    -> 2x2 of 90mm (4 per page; trading-card size)
+  const PRINT_SIZES = {
+    compact:  { label: 'Compact',  cardMM: 55, cols: 3, rows: 3, gutter: 5 },
+    standard: { label: 'Standard', cardMM: 68, cols: 2, rows: 3, gutter: 6 },
+    large:    { label: 'Large',    cardMM: 90, cols: 2, rows: 2, gutter: 8 },
+  };
+
+  function printLayout(size) {
+    return PRINT_SIZES[size] || PRINT_SIZES.standard;
   }
 
   // ── lazy loader for jsPDF ──────────────────────────────────────────────
@@ -79,9 +85,9 @@
     if (existing) existing.remove();
   }
 
-  function buildPrintGrid(dataURLs, symbolsPerCard) {
+  function buildPrintGrid(dataURLs, size) {
     clearPrintContainer();
-    const L = printLayoutForN(symbolsPerCard);
+    const L = printLayout(size);
     const perPage = L.cols * L.rows;
 
     const container = document.createElement('div');
@@ -133,18 +139,18 @@
     const o = opts || {};
     const { deck, sizeVariance, symbolsPerCard } = await buildDeckForExport();
     const dataURLs = await renderAllCards(deck, sizeVariance, o.shape, symbolsPerCard);
-    const container = buildPrintGrid(dataURLs, symbolsPerCard);
+    const container = buildPrintGrid(dataURLs, o.size);
     await waitForImages(container);
     // Defer slightly so the browser has painted the grid before print.
     await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 50)));
     window.print();
     setTimeout(clearPrintContainer, 2000);
-    return { cards: deck.cards.length };
+    return { cards: deck.cards.length, size: (printLayout(o.size)).label };
   }
 
   // Instant PDF download via jsPDF (lazy-loaded). Lays the cards out on
-  // A4 portrait using printLayoutForN() so 8-per-card decks get physically
-  // larger cards and trigger a browser download with no print dialog.
+  // A4 portrait using the user's chosen size preset and triggers a browser
+  // download with no print dialog.
   async function downloadPDF(opts) {
     const o = opts || {};
     const JsPDF = await ensureJsPDF();
@@ -153,7 +159,7 @@
 
     const doc = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
     const pageW = 210, pageH = 297;
-    const layout = printLayoutForN(symbolsPerCard);
+    const layout = printLayout(o.size);
     const cardMM = layout.cardMM;
     const gutter = layout.gutter;
     const cols = layout.cols, rows = layout.rows;
@@ -280,6 +286,8 @@
 
   window.FindIt = window.FindIt || {};
   window.FindIt.exporter = {
+    PRINT_SIZES,
+    printLayout,
     printDeck,
     downloadPDF,
     downloadPNGSheet,
