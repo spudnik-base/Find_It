@@ -12,10 +12,10 @@
 (function () {
   'use strict';
 
-  const WORD_PADDING_X = 16;    // px horizontal padding (inside pill)
-  const WORD_PADDING_Y = 8;     // px vertical padding (inside pill)
+  const WORD_PADDING_X = 22;    // px horizontal padding (inside pill)
+  const WORD_PADDING_Y = 10;    // px vertical padding (inside pill)
   const WORD_PADDING = WORD_PADDING_Y;  // legacy alias (unused externally)
-  const OBB_GAP = 5;            // px separation between OBBs
+  const OBB_GAP = 2;            // px separation between OBBs
   const BORDER = 14;            // px inset from the card boundary
   const MAX_ATTEMPTS = 500;
 
@@ -152,6 +152,19 @@
     ctx.font = wordFont;
 
     const measured = symbols.map((sym) => {
+      if (sym.isBlank) {
+        // Placeholder for "this pack has fewer symbols than the plane
+        // needs". Render a modest circle so it's visible but obviously
+        // not real content. Size is tame so it doesn't crowd the card.
+        const size = imageBase * 0.45;
+        return {
+          sym,
+          type: 'blank',
+          size,
+          hw: size / 2,
+          hh: size / 2,
+        };
+      }
       if (sym.type === 'image') {
         const size = randSize(imageBase, imageBase * sizeVariance);
         return {

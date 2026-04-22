@@ -173,6 +173,36 @@
     }
   }
 
+  function drawBlankSymbol(ctx, item, opts) {
+    const o = opts || {};
+    ctx.save();
+    ctx.translate(item.cx, item.cy);
+    const r = item.size / 2;
+    if (o.halo) {
+      ctx.save();
+      ctx.shadowColor = 'rgba(255, 200, 50, 0.85)';
+      ctx.shadowBlur = 40;
+      ctx.fillStyle = 'rgba(255, 224, 51, 0.6)';
+      ctx.beginPath();
+      ctx.arc(0, 0, r + 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.strokeStyle = 'rgba(13, 13, 13, 0.28)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // small centre dot so the thing reads as "marker" not "random circle"
+    ctx.fillStyle = 'rgba(13, 13, 13, 0.28)';
+    ctx.beginPath();
+    ctx.arc(0, 0, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
   function drawPlaceholderSymbol(ctx, item) {
     ctx.save();
     ctx.translate(item.cx, item.cy);
@@ -231,6 +261,8 @@
       const halo = o.highlightId && item.sym.id === o.highlightId;
       if (item.type === 'image') {
         drawJobs.push(drawImageSymbol(ctx, item, { halo }));
+      } else if (item.type === 'blank') {
+        drawBlankSymbol(ctx, item, { halo });
       } else {
         drawWordSymbol(ctx, item, { halo });
       }
@@ -257,6 +289,7 @@
     drawCardBackground,
     drawWordSymbol,
     drawImageSymbol,
+    drawBlankSymbol,
     drawPlaceholderSymbol,
     renderCard,
     pickTint,
