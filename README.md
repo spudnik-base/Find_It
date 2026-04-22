@@ -9,10 +9,10 @@ Pure vanilla HTML/CSS/JS. No framework, no build step, no server.
 ## Run it
 
 ```
-open src/index.html
+open index.html
 ```
 
-Or serve the `src/` folder from any static HTTP server.
+Or serve the repo root from any static HTTP server.
 
 ## Usage
 
@@ -37,15 +37,16 @@ Valid shapes shipped: `q = 3` (13 cards × 4 symbols), `q = 5` (31 × 6), `q = 7
 
 ## Structure
 
-- `src/index.html` — entry point
-- `src/style.css` — global + print stylesheet
-- `src/js/projective.js` — projective-plane generator (math core)
-- `src/js/content.js` — data model, CRUD, localStorage, CSV, images
-- `src/js/layout.js` — OBB + SAT circle packing
-- `src/js/renderer.js` — Canvas 2D card drawing
-- `src/js/deck.js` — maps content symbols onto plane indices
-- `src/js/exporter.js` — `window.print()` pipeline, PNG sheet, share links
-- `src/js/app.js` — UI wiring
+- `index.html` — entry point
+- `style.css` — global + print stylesheet
+- `js/projective.js` — projective-plane generator (math core)
+- `js/content.js` — data model, CRUD, localStorage, CSV, images
+- `js/layout.js` — OBB + SAT circle packing
+- `js/renderer.js` — Canvas 2D card drawing
+- `js/deck.js` — maps content symbols onto plane indices
+- `js/exporter.js` — `window.print()` pipeline, PNG sheet, share links
+- `js/packs.js` — starter content packs (IB Biology)
+- `js/app.js` — UI wiring
 - `docs/find_it_brief.md` — the full build brief
 - `docs/find_it.html` — standalone brief viewer
 
