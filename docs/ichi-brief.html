@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICHI — Claude Code Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+
+<style>
+:root {
+  --ink:     #0d0d0d;
+  --paper:   #faf6ee;
+  --yellow:  #ffe033;
+  --red:     #e8291c;
+  --blue:    #1a4ed8;
+  --teal:    #00b4a0;
+  --green:   #1a8c4e;
+  --shadow:  4px 4px 0px var(--ink);
+  --shadow-lg: 6px 6px 0px var(--ink);
+  --border:  2.5px solid var(--ink);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  background-image: radial-gradient(circle, #d4ccbc 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -60px; right: -60px;
+  width: 280px; height: 280px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 10deg, rgba(255,224,51,0.18) 10deg 12deg,
+    transparent 12deg 22deg, rgba(255,224,51,0.12) 22deg 24deg,
+    transparent 24deg 34deg, rgba(255,224,51,0.18) 34deg 36deg,
+    transparent 36deg
+  );
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── TOOLBAR ── */
+.toolbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--ink);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--yellow);
+}
+.toolbar-logo {
+  font-family: 'Bangers', cursive;
+  font-size: 1.6rem;
+  color: var(--yellow);
+  letter-spacing: 3px;
+  text-shadow: 2px 2px 0 var(--red);
+}
+.toolbar-logo span { color: rgba(255,255,255,0.5); font-size: 0.9rem; letter-spacing: 1px; }
+.toolbar-actions { display: flex; gap: 10px; align-items: center; }
+
+.save-status {
+  font-family: 'Caveat', cursive;
+  font-size: 1rem;
+  color: rgba(255,255,255,0.4);
+}
+.save-status.saved  { color: var(--teal); }
+.save-status.saving { color: var(--yellow); }
+
+.btn {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 1.5px;
+  font-size: 0.95rem;
+  padding: 7px 18px;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.btn:active { transform: translate(3px,3px); box-shadow: none !important; }
+.btn-edit {
+  background: var(--yellow); color: var(--ink);
+  border-color: var(--ink); box-shadow: 3px 3px 0 var(--ink);
+}
+.btn-edit:hover  { box-shadow: 4px 4px 0 var(--ink); transform: translate(-1px,-1px); }
+.btn-edit.active { background: var(--paper); }
+.btn-pdf {
+  background: var(--red); color: white;
+  border-color: var(--ink); box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+}
+.btn-pdf:hover  { box-shadow: 4px 4px 0 rgba(0,0,0,0.5); transform: translate(-1px,-1px); }
+.btn-clear {
+  background: transparent; color: rgba(255,255,255,0.4);
+  border-color: rgba(255,255,255,0.15); font-size: 0.8rem;
+}
+.btn-clear:hover { color: white; border-color: white; }
+
+/* ── LAYOUT ── */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  position: relative; z-index: 1;
+}
+
+/* ── EDITOR ── */
+#editor-wrap { display: none; }
+#editor-wrap.visible { display: block; }
+.editor-panel {
+  background: white;
+  border: var(--border);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+.editor-panel::before {
+  content: 'EDIT MODE';
+  position: absolute; top: -14px; left: 12px;
+  font-family: 'Bangers', cursive;
+  font-size: 0.8rem; letter-spacing: 2px;
+  background: var(--red); color: white;
+  padding: 2px 10px; border: 2px solid var(--ink);
+}
+#md-editor {
+  width: 100%; min-height: 70vh;
+  padding: 28px;
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem; line-height: 1.7;
+  border: none; outline: none; resize: vertical;
+  background: white; color: var(--ink);
+}
+
+/* ── RENDERED VIEW ── */
+#render-wrap { display: block; }
+#render-wrap.hidden { display: none; }
+
+/* ── MANGA MARKDOWN ── */
+.manga-doc h1 {
+  font-family: 'Bangers', cursive;
+  font-size: 4rem; letter-spacing: 4px; line-height: 1.0;
+  color: var(--ink);
+  background: var(--yellow);
+  border: 3px solid var(--ink);
+  box-shadow: var(--shadow-lg);
+  padding: 18px 28px;
+  margin-bottom: 32px;
+  background-image:
+    repeating-linear-gradient(-45deg, transparent, transparent 8px, rgba(0,0,0,0.04) 8px, rgba(0,0,0,0.04) 16px),
+    linear-gradient(var(--yellow), var(--yellow));
+  position: relative;
+}
+.manga-doc h1::after {
+  content: '';
+  position: absolute; bottom: -10px; right: 16px;
+  width: 0; height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid var(--ink);
+}
+
+.manga-doc h2 {
+  font-family: 'Bangers', cursive;
+  font-size: 1.9rem; letter-spacing: 2px;
+  color: white; background: var(--ink);
+  padding: 8px 24px 8px 16px;
+  margin: 40px 0 16px;
+  border: var(--border); box-shadow: var(--shadow);
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%);
+  display: inline-block; min-width: 55%;
+}
+
+.manga-doc h3 {
+  font-family: 'Bangers', cursive;
+  font-size: 1.3rem; letter-spacing: 1.5px;
+  color: var(--ink);
+  border-bottom: 3px solid var(--ink);
+  padding-bottom: 4px;
+  margin: 24px 0 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.manga-doc h3::before { content: '▶'; color: var(--red); font-size: 0.85rem; }
+
+.manga-doc h4 {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 0.88rem;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--blue); margin: 16px 0 8px;
+}
+
+.manga-doc p {
+  font-size: 0.95rem; line-height: 1.75;
+  margin-bottom: 12px;
+  background: white;
+  border: 2px solid var(--ink);
+  padding: 11px 16px;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.manga-doc blockquote {
+  background: var(--yellow);
+  border: 2.5px solid var(--ink); box-shadow: var(--shadow);
+  padding: 16px 20px;
+  margin: 20px 0 20px 16px;
+  position: relative;
+  font-family: 'Caveat', cursive;
+  font-size: 1.25rem; font-weight: 600;
+}
+.manga-doc blockquote::before {
+  content: '';
+  position: absolute; left: -18px; top: 18px;
+  border-top: 8px solid transparent; border-bottom: 8px solid transparent;
+  border-right: 18px solid var(--ink);
+}
+.manga-doc blockquote::after {
+  content: '';
+  position: absolute; left: -13px; top: 20px;
+  border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+  border-right: 14px solid var(--yellow);
+}
+.manga-doc blockquote p { background: none; border: none; box-shadow: none; padding: 0; margin: 0; }
+
+.manga-doc ul, .manga-doc ol { margin: 0 0 16px; padding: 0; list-style: none; }
+.manga-doc li {
+  background: white; border: 2px solid var(--ink); border-top: none;
+  padding: 9px 14px 9px 42px;
+  font-size: 0.9rem; line-height: 1.5;
+  position: relative;
+}
+.manga-doc li:first-child { border-top: 2px solid var(--ink); }
+.manga-doc ul li::before {
+  content: '✦'; position: absolute; left: 14px;
+  color: var(--red); font-size: 0.75rem;
+  top: 50%; transform: translateY(-50%);
+}
+.manga-doc ol { counter-reset: ml; }
+.manga-doc ol li { counter-increment: ml; }
+.manga-doc ol li::before {
+  content: counter(ml);
+  position: absolute; left: 0; top: 0; bottom: 0; width: 34px;
+  background: var(--ink); color: var(--yellow);
+  font-family: 'Bangers', cursive; font-size: 1rem; letter-spacing: 1px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Nested lists */
+.manga-doc li ul, .manga-doc li ol { margin-top: 6px; margin-left: 0; }
+.manga-doc li li { border-left: 3px solid var(--teal); background: #f8fffd; }
+.manga-doc li li::before { color: var(--teal); }
+
+.manga-doc code {
+  font-family: 'Courier New', monospace;
+  background: var(--ink); color: var(--yellow);
+  padding: 2px 7px; font-size: 0.82rem; font-weight: 700;
+}
+.manga-doc pre {
+  background: var(--ink); border: 2.5px solid var(--ink);
+  box-shadow: var(--shadow); padding: 20px; margin: 14px 0;
+  overflow-x: auto; position: relative;
+}
+.manga-doc pre::before {
+  content: 'CODE';
+  position: absolute; top: -12px; right: 12px;
+  font-family: 'Bangers', cursive; font-size: 0.75rem; letter-spacing: 2px;
+  background: var(--red); color: white; padding: 1px 8px; border: 2px solid var(--ink);
+}
+.manga-doc pre code { background: none; padding: 0; font-size: 0.82rem; line-height: 1.6; color: #a8ff78; }
+
+.manga-doc hr {
+  border: none; height: 4px;
+  background: repeating-linear-gradient(90deg, var(--ink) 0px 20px, transparent 20px 26px);
+  margin: 32px 0;
+}
+
+.manga-doc strong { font-weight: 800; background: var(--yellow); padding: 0 3px; }
+.manga-doc em { font-style: normal; color: var(--red); font-weight: 700; }
+
+.manga-doc table {
+  width: 100%; border-collapse: collapse;
+  margin: 14px 0; border: 2.5px solid var(--ink); box-shadow: var(--shadow);
+}
+.manga-doc th {
+  background: var(--ink); color: var(--yellow);
+  font-family: 'Bangers', cursive; letter-spacing: 1.5px; font-size: 1rem;
+  padding: 10px 14px; border: 1px solid rgba(255,255,255,0.15);
+}
+.manga-doc td {
+  background: white; padding: 8px 14px;
+  font-size: 0.88rem; border: 1.5px solid var(--ink);
+}
+.manga-doc tr:nth-child(even) td { background: #f5f0e5; }
+
+/* ── FILE TREE styling ── */
+.manga-doc pre.filetree { background: #0d1f0d; }
+.manga-doc pre.filetree code { color: #7fff7f; }
+
+@media print {
+  *, *::before, *::after { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  body { background: white !important; background-image: none !important; }
+  body::before { display: none; }
+  .toolbar { display: none !important; }
+  .container { max-width: 100%; padding: 20px; }
+  #editor-wrap { display: none !important; }
+  #render-wrap { display: block !important; }
+  .manga-doc h1 { font-size: 2.8rem; page-break-after: avoid; }
+  .manga-doc h2, .manga-doc h3 { page-break-after: avoid; }
+  .manga-doc p, .manga-doc li { page-break-inside: avoid; }
+  @page { margin: 15mm 12mm; size: A4; }
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="toolbar-logo">ICHI <span>— CLAUDE CODE BRIEF</span></div>
+  <div class="toolbar-actions">
+    <span class="save-status saved" id="saveStatus">✓ saved</span>
+    <button class="btn btn-edit" id="toggleEdit" onclick="toggleEdit()">✏ EDIT</button>
+    <button class="btn btn-pdf"  onclick="downloadPDF()">⬇ PDF</button>
+    <button class="btn btn-clear" onclick="clearStorage()">↺ reset</button>
+  </div>
+</div>
+
+<div class="container">
+  <div id="editor-wrap">
+    <div class="editor-panel">
+      <textarea id="md-editor" spellcheck="true" oninput="onEdit(this.value)"></textarea>
+    </div>
+  </div>
+  <div id="render-wrap">
+    <div class="manga-doc" id="rendered"></div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_MD = `# ICHI
+## Claude Code — Full Build Brief
+
+> One match. Every pair. Any subject. Build it.
+
+**Project:** ICHI — a browser-based educational card game generator for teachers.
+The mechanic is a Dobble-style matching game: every pair of cards shares *exactly one* symbol.
+Teachers upload their own content (words, images) and get a print-ready PDF card set.
+
+---
+
+## Chapter 1: Stack & Constraints
+
+- **Pure vanilla** — HTML + CSS + JS. No framework. No build step. Single \`index.html\` + asset files.
+- **No server** — everything runs client-side. LocalStorage for persistence. No accounts, no sign-up.
+- **PDF export** — \`window.print()\` with \`@media print\` CSS. No jsPDF, no html2canvas, no dependencies.
+- **Canvas rendering** — all card drawing via the Canvas 2D API.
+- **Fonts** — load from Google Fonts: Bangers (headings), Nunito (body), Caveat (handwritten accents).
+
+---
+
+## Chapter 2: File Structure
+
+\`\`\`
+ichi/
+├── index.html          # Single entry point — teacher tool UI
+├── style.css           # Global styles + print stylesheet
+├── js/
+│   ├── projective.js   # Dobble math — projective plane generator
+│   ├── layout.js       # Card layout — SAT collision, circle packing
+│   ├── renderer.js     # Canvas card drawing engine
+│   ├── exporter.js     # PDF print layout + cut guides
+│   ├── content.js      # Content manager — words, images, CSV
+│   └── app.js          # UI wiring + state management
+├── assets/
+│   └── icon.svg
+└── README.md
+\`\`\`
+
+---
+
+## Chapter 3: Core Algorithm — Projective Plane
+
+> This is the heart of ICHI. Get this right first.
+
+Every valid Dobble set is built from a **finite projective plane of order n-1**, where n = symbols per card.
+
+### Valid orders (n = symbols per card)
+- n=4 → order 3 → 13 cards, 13 symbols
+- n=6 → order 5 → 31 cards, 31 symbols
+- n=8 → order 7 → 57 cards, 57 symbols
+
+### Generation algorithm (in \`projective.js\`)
+
+\`\`\`js
+// Returns array of cards, each card is an array of symbol indices.
+// Every pair of cards shares exactly one symbol index. Guaranteed.
+function generateProjectivePlane(order) {
+  const n = order;
+  const cards = [];
+
+  // 1. "Infinity" cards — one per slope plus the vertical
+  for (let slope = 0; slope < n; slope++) {
+    const card = [n * n + slope]; // infinity point for this slope
+    for (let x = 0; x < n; x++) {
+      card.push(x * n + ((slope * x) % n));
+    }
+    cards.push(card);
+  }
+  // Vertical infinity card
+  const vertCard = [n * n + n];
+  for (let x = 0; x < n; x++) vertCard.push(x * n + (n - 1));
+  cards.push(vertCard);
+
+  // 2. Affine cards — one per (x, y) point
+  for (let x = 0; x < n; x++) {
+    for (let y = 0; y < n; y++) {
+      const card = [];
+      for (let slope = 0; slope < n; slope++) {
+        card.push(x * n + ((y - slope * x + n * n) % n));
+        // attach infinity point
+        card.push(n * n + slope);
+      }
+      // remove duplicates and trim to n symbols
+      const unique = [...new Set(card)].slice(0, n);
+      cards.push(unique);
+    }
+  }
+  return cards; // array of (n²+n+1) cards, each length n
+}
+\`\`\`
+
+**Important:** The teacher may not have exactly n²+n+1 symbols. Handle this:
+- *Too few symbols* → pad with placeholder symbols (blank/star). Warn the teacher.
+- *Too many symbols* → take the first n²+n+1. Warn that extras are unused.
+- *Expose this mismatch clearly in the UI* before generating.
+
+---
+
+## Chapter 4: Card Layout Engine (\`layout.js\`)
+
+### Inputs
+- \`symbols[]\` — array of symbol objects \`{ type: 'word'|'image', value, displayLabel }\`
+- \`cardRadius\` — canvas radius in px (default 320px canvas = 160px radius)
+- \`sizeVariance\` — max size ratio between smallest and largest symbol (1.0–3.0)
+- \`showDebug\` — boolean, draws OBB outlines for testing
+
+### Word cap
+Display labels for text symbols are capped at **8 characters**.
+Store full term internally; only the display label is trimmed.
+
+\`\`\`js
+function capDisplay(word, max = 8) {
+  return [...word].length <= max ? word : word.slice(0, max) + '.';
+}
+\`\`\`
+
+Provide an *abbreviation map* override so teachers can define \`"amino acid" → "aa"\`, etc.
+
+### Three-pass placement
+
+**Pass 1 — Measure**
+Set the canvas font, call \`ctx.measureText(label)\`, retrieve \`actualBoundingBoxAscent\` + \`Descent\`.
+Store \`{ hw, hh }\` (half-width, half-height) per symbol. Include padding (8px each side).
+For images, hw = hh = imageSize/2.
+
+**Pass 2 — Place (SAT collision)**
+For each symbol (shuffled randomly), attempt up to 500 random positions inside the card circle.
+At each candidate position, run two checks:
+
+1. **Circle boundary** — all 4 corners of the rotated OBB must satisfy:
+   \`(corner.x - cx)² + (corner.y - cy)² ≤ (R - BORDER)²\`
+
+2. **SAT overlap** — test against every already-placed OBB on 4 axes.
+   If any axis has a separating gap, no collision → accept position.
+
+\`\`\`js
+function obbCorners({ cx, cy, hw, hh, rot }) {
+  const cos = Math.cos(rot), sin = Math.sin(rot);
+  return [
+    [cx + cos*hw - sin*hh,  cy + sin*hw + cos*hh],
+    [cx - cos*hw - sin*hh,  cy - sin*hw + cos*hh],
+    [cx - cos*hw + sin*hh,  cy - sin*hw - cos*hh],
+    [cx + cos*hw + sin*hh,  cy + sin*hw - cos*hh],
+  ];
+}
+
+function obbOverlap(a, b, gap = 5) {
+  const ca = obbCorners(a), cb = obbCorners(b);
+  const axes = [
+    [ Math.cos(a.rot),  Math.sin(a.rot)],
+    [-Math.sin(a.rot),  Math.cos(a.rot)],
+    [ Math.cos(b.rot),  Math.sin(b.rot)],
+    [-Math.sin(b.rot),  Math.cos(b.rot)],
+  ];
+  for (const [ax, ay] of axes) {
+    const pa = project(ca, ax, ay);
+    const pb = project(cb, ax, ay);
+    if (pa.max + gap < pb.min || pb.max + gap < pa.min) return false;
+  }
+  return true;
+}
+\`\`\`
+
+**Pass 3 — Draw**
+Render background circle, then each symbol at its placed position.
+Words: pill background + text. Images: draw scaled \`HTMLImageElement\`.
+No symbol is drawn if Pass 2 failed to place it (log a warning to console).
+
+### Size assignment
+\`\`\`js
+function randSize(baseMin, baseMax) {
+  const t = Math.random();
+  if (t < 0.35) return baseMin;
+  if (t < 0.72) return baseMin + (baseMax - baseMin) * 0.45;
+  return baseMax;
+}
+\`\`\`
+baseMin = 16px (words) or 20px (emoji/images). baseMax = baseMin × sizeVariance.
+
+---
+
+## Chapter 5: Content Manager (\`content.js\`)
+
+### Data model
+\`\`\`js
+// Stored in localStorage under key 'ichi-content-v1'
+{
+  setName: "IB Biology — Biological Molecules",
+  symbolsPerCard: 6,           // 4 | 6 | 8
+  sizeVariance: 2.0,
+  abbreviations: {             // optional overrides
+    "amino acid": "aa",
+    "haemoglobin": "Hb"
+  },
+  symbols: [
+    { id: "sym_001", type: "word",  value: "mitosis",    display: null },
+    { id: "sym_002", type: "word",  value: "amino acid", display: "aa" },
+    { id: "sym_003", type: "image", value: "<dataURL>",  display: null }
+  ]
+}
+\`\`\`
+
+### Input methods
+
+1. **Text entry** — chip grid. Type to add, click × to remove.
+2. **CSV import** — \`FileReader\` reads .csv. One term per line. Second column = optional abbreviation.
+3. **Image drag-and-drop** — drop zone reads files as base64 dataURL, stores in symbol object.
+4. **Paste** — detect comma-separated or newline-separated text pasted into input field.
+
+### Symbol count validation
+Show a live counter: *"24 of 31 symbols needed (need 7 more)"*.
+Block generation if count is below n (minimum viable), warn if below n²+n+1.
+
+---
+
+## Chapter 6: Card Renderer (\`renderer.js\`)
+
+### Canvas spec
+- Internal resolution: **640×640px** (rendered at 2× for retina)
+- Display size: **220×220px** CSS (scaled via \`canvas.style\`)
+- Card colours: rotate through 5 background tints: cream, mint, lavender, blush, ice
+
+### Image symbols
+\`\`\`js
+async function drawImageSymbol(ctx, dataURL, x, y, size, rot) {
+  const img = await loadImage(dataURL); // cache HTMLImageElement
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rot);
+  ctx.drawImage(img, -size/2, -size/2, size, size);
+  ctx.restore();
+}
+// Cache: Map<dataURL, HTMLImageElement>
+\`\`\`
+
+### Match symbol highlight
+In *game preview* mode only — draw a subtle gold halo behind the matching symbol.
+This is OFF in print/export mode.
+
+---
+
+## Chapter 7: PDF Exporter (\`exporter.js\`)
+
+### Layout
+- Page size: **A4 portrait** (210mm × 297mm)
+- Cards per page: **9** (3×3 grid), each card 55mm diameter
+- Margins: 15mm top/bottom, 12mm sides
+- Between cards: 5mm gutter
+
+### Print stylesheet
+\`\`\`css
+@media print {
+  * { -webkit-print-color-adjust: exact !important; }
+  .toolbar, .editor-panel { display: none !important; }
+  body { background: white !important; }
+
+  .print-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 55mm);
+    gap: 5mm;
+    padding: 15mm 12mm;
+  }
+
+  .print-card-wrap {
+    width: 55mm; height: 55mm;
+    page-break-inside: avoid;
+  }
+
+  /* Cut guides — subtle corner marks */
+  .print-card-wrap::before,
+  .print-card-wrap::after {
+    content: '';
+    position: absolute;
+    width: 3mm; height: 3mm;
+    border-top: 0.3mm solid #ccc;
+    border-left: 0.3mm solid #ccc;
+  }
+}
+\`\`\`
+
+### Export flow
+1. Generate all cards (projective plane → assign symbols → layout each card)
+2. Render each card to an offscreen canvas at 640px
+3. Convert each canvas to a dataURL (\`toDataURL('image/png')\`)
+4. Build a hidden \`div.print-grid\` with \`<img>\` tags
+5. Call \`window.print()\`
+6. Remove the hidden div after 2 seconds
+
+---
+
+## Chapter 8: UI Screens
+
+### Screen 1 — Content Editor
+- Subject name input (top)
+- Input type toggle: Words / Images / CSV
+- Chip grid for current symbols
+- Symbol count progress bar with target (e.g. 24/31)
+- Live warning if count won't fill a valid set
+
+### Screen 2 — Configure
+- Symbols per card: segmented control 4 / 6 / 8
+- Size variance slider (1.0 → 3.0, default 2.0)
+- Card style: circle / rounded square
+- Colour theme: classic / monochrome / subject colour
+- Abbreviation editor (expandable)
+- Stats panel: *31 cards · 31 symbols · 6 per card*
+
+### Screen 3 — Preview
+- 6-card preview grid (canvas elements, click to regenerate layout)
+- "Spot the match" — click two cards, highlights shared symbol
+- Match verified: green badge. Fail: red badge (should never happen)
+
+### Screen 4 — Export
+- Print all (PDF) button
+- Print selected pages
+- PNG sheet (single page, for digital use)
+- Share link (base64-encode symbol list into URL hash, no server)
+
+---
+
+## Chapter 9: LocalStorage Schema
+
+\`\`\`js
+// Keys
+'ichi-content-v1'   // current set (JSON, see Chapter 5)
+'ichi-settings-v1'  // UI preferences (symbolsPerCard, sizeVariance, theme)
+'ichi-history-v1'   // array of saved sets { name, date, symbolCount }
+
+// Max storage: ~5MB. Images stored as base64 can hit this fast.
+// Warn teacher if localStorage is >80% full.
+// Provide a "Clear old sets" option.
+\`\`\`
+
+---
+
+## Chapter 10: Edge Cases to Handle
+
+| Situation | Behaviour |
+|-----------|-----------|
+| Fewer symbols than target | Pad with blanks. Show warning. Still generates. |
+| Word over 8 chars | Auto-truncate display. Store original. Teacher can override in abbreviation map. |
+| Symbol fails to place after 500 attempts | Skip it. Log to console. Show count of dropped symbols in UI. |
+| Image load fails | Show a placeholder ⬜ symbol. |
+| localStorage full | Show a toast warning. Offer to clear history. |
+| Printing with images | Ensure images are fully loaded before \`window.print()\` is called. |
+| Single-card set (edge case n=2) | Not a valid projective plane. Disable and explain. |
+
+---
+
+## Chapter 11: Stretch Goals (post-MVP)
+
+1. **Pre-made packs** — IB Biology topics, GCSE Chemistry, KS2 Numeracy, bundled as JSON imports
+2. **Abbreviation AI** — call Claude API to auto-suggest abbreviations for a given symbol list
+3. **In-browser multiplayer** — teacher shares URL, students play on phones (WebRTC or polling)
+4. **QR code** on printed cards — links to definition/hint page
+5. **Accessibility mode** — high contrast, dyslexia-friendly font, larger minimum symbol size
+`;
+
+const STORAGE_KEY = 'ichi-brief-v1';
+
+function load() { return localStorage.getItem(STORAGE_KEY) || DEFAULT_MD; }
+function save(md) { localStorage.setItem(STORAGE_KEY, md); }
+
+function render(md) {
+  document.getElementById('rendered').innerHTML = marked.parse(md);
+}
+
+let editMode = false, saveTimer = null;
+
+function toggleEdit() {
+  editMode = !editMode;
+  document.getElementById('editor-wrap').classList.toggle('visible', editMode);
+  document.getElementById('render-wrap').classList.toggle('hidden', editMode);
+  const btn = document.getElementById('toggleEdit');
+  btn.textContent = editMode ? '👁 VIEW' : '✏ EDIT';
+  btn.classList.toggle('active', editMode);
+}
+
+function onEdit(val) {
+  render(val);
+  setStatus('saving', '… saving');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { save(val); setStatus('saved', '✓ saved'); }, 600);
+}
+
+function setStatus(cls, txt) {
+  const el = document.getElementById('saveStatus');
+  el.className = 'save-status ' + cls;
+  el.textContent = txt;
+}
+
+function clearStorage() {
+  if (confirm('Reset to default content?')) {
+    localStorage.removeItem(STORAGE_KEY);
+    const md = DEFAULT_MD;
+    document.getElementById('md-editor').value = md;
+    render(md);
+    setStatus('saved', '✓ reset');
+  }
+}
+
+function downloadPDF() {
+  if (editMode) toggleEdit();
+  setTimeout(() => window.print(), 80);
+}
+
+const md = load();
+document.getElementById('md-editor').value = md;
+render(md);
+</script>
+</body>
+</html>
