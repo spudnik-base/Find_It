@@ -636,25 +636,30 @@
   }
 
   // ── screen 4: export ───────────────────────────────────────────────────
+  async function runPrint(setStatus) {
+    const s = C().get();
+    if (s.symbols.length === 0) {
+      setStatus('Add some symbols first.');
+      toast('Add some symbols before printing.', 'warn');
+      return;
+    }
+    setStatus('Building deck…');
+    try {
+      const result = await FindIt.exporter.printDeck({ shape: state.cardShape });
+      setStatus('Opened print dialog for ' + result.cards + ' cards.');
+    } catch (err) {
+      console.error(err);
+      setStatus('Print failed: ' + err.message);
+      toast('Print failed: ' + err.message, 'err');
+    }
+  }
+
   function initExport() {
     const statusEl = document.getElementById('exportStatus');
     const setStatus = (text) => { if (statusEl) statusEl.textContent = text || ''; };
 
-    document.getElementById('printBtn').addEventListener('click', async () => {
-      const s = C().get();
-      if (s.symbols.length === 0) {
-        setStatus('Add some symbols first.');
-        return;
-      }
-      setStatus('Building deck…');
-      try {
-        const result = await FindIt.exporter.printDeck({ shape: state.cardShape });
-        setStatus('Opened print dialog for ' + result.cards + ' cards.');
-      } catch (err) {
-        console.error(err);
-        setStatus('Print failed: ' + err.message);
-      }
-    });
+    const toolbarBtn = document.getElementById('toolbarPrintBtn');
+    if (toolbarBtn) toolbarBtn.addEventListener('click', () => runPrint(setStatus));
 
     document.getElementById('pngBtn').addEventListener('click', async () => {
       const s = C().get();
