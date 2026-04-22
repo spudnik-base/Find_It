@@ -533,6 +533,17 @@
     if (settings.cardShape) state.cardShape = settings.cardShape;
   }
 
+  // Return the symbols-per-card value that yields the largest complete deck
+  // we can build with `count` symbols (without any blanks). null if count is
+  // too small for even n=4.
+  function suggestAltN(count) {
+    const shapes = [4, 6, 8]
+      .map((n) => FindIt.setShape(n))
+      .filter((sh) => sh.totalSymbols <= count)
+      .sort((a, b) => b.totalSymbols - a.totalSymbols);
+    return shapes.length ? shapes[0].symbolsPerCard : null;
+  }
+
   function refreshConfigUI() {
     const s = C().get();
     document.querySelectorAll('[data-spc]').forEach((btn) => {
@@ -554,6 +565,25 @@
       statsEl.textContent = shape.totalCards + ' cards · ' +
         Math.min(got, shape.totalSymbols) + '/' + shape.totalSymbols + ' symbols · ' +
         shape.symbolsPerCard + ' per card';
+    }
+
+    // Placeholder warning: show when the pack is smaller than the plane needs.
+    const warnEl = document.getElementById('blankWarning');
+    if (warnEl) {
+      const short = Math.max(0, shape.totalSymbols - got);
+      if (short > 0 && got > 0) {
+        const alt = suggestAltN(got);
+        warnEl.hidden = false;
+        warnEl.innerHTML =
+          '<span class="warn-icon" aria-hidden="true">&#9888;</span>' +
+          '<span><b>' + short + ' blank placeholder(s)</b> will pad this set. ' +
+          'Pairs that only share a blank won\'t feel like a real match.' +
+          (alt ? ' Try <b>' + alt + ' per card</b> for a clean deck, or add ' + short + ' more symbols.' : '') +
+          '</span>';
+      } else {
+        warnEl.hidden = true;
+        warnEl.innerHTML = '';
+      }
     }
   }
 
