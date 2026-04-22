@@ -83,6 +83,19 @@
     lastSaveTick = Date.now();
   }
 
+  // ── intro strip ────────────────────────────────────────────────────────
+  function initIntro() {
+    const el = document.getElementById('intro');
+    const btn = document.getElementById('introClose');
+    if (!el || !btn) return;
+    const settings = loadSettings();
+    if (settings.introDismissed) el.hidden = true;
+    btn.addEventListener('click', () => {
+      el.hidden = true;
+      saveSettings({ introDismissed: true });
+    });
+  }
+
   // ── starter packs ──────────────────────────────────────────────────────
   function initPacks() {
     const select = document.getElementById('packSelect');
@@ -523,6 +536,7 @@
       tint: FindIt.renderer.pickTint(cardIdx),
       shape: state.cardShape,
       sizeVariance: content.sizeVariance,
+      symbolsPerCard: content.symbolsPerCard,
       highlightId: o.highlightId,
     });
     if (result && result.dropped && result.dropped.length) {
@@ -636,25 +650,30 @@
   }
 
   // ── screen 4: export ───────────────────────────────────────────────────
+  async function runPrint(setStatus) {
+    const s = C().get();
+    if (s.symbols.length === 0) {
+      setStatus('Add some symbols first.');
+      toast('Add some symbols before printing.', 'warn');
+      return;
+    }
+    setStatus('Building deck…');
+    try {
+      const result = await FindIt.exporter.printDeck({ shape: state.cardShape });
+      setStatus('Opened print dialog for ' + result.cards + ' cards.');
+    } catch (err) {
+      console.error(err);
+      setStatus('Print failed: ' + err.message);
+      toast('Print failed: ' + err.message, 'err');
+    }
+  }
+
   function initExport() {
     const statusEl = document.getElementById('exportStatus');
     const setStatus = (text) => { if (statusEl) statusEl.textContent = text || ''; };
 
-    document.getElementById('printBtn').addEventListener('click', async () => {
-      const s = C().get();
-      if (s.symbols.length === 0) {
-        setStatus('Add some symbols first.');
-        return;
-      }
-      setStatus('Building deck…');
-      try {
-        const result = await FindIt.exporter.printDeck({ shape: state.cardShape });
-        setStatus('Opened print dialog for ' + result.cards + ' cards.');
-      } catch (err) {
-        console.error(err);
-        setStatus('Print failed: ' + err.message);
-      }
-    });
+    const toolbarBtn = document.getElementById('toolbarPrintBtn');
+    if (toolbarBtn) toolbarBtn.addEventListener('click', () => runPrint(setStatus));
 
     document.getElementById('pngBtn').addEventListener('click', async () => {
       const s = C().get();
@@ -694,6 +713,7 @@
   function boot() {
     // If a share link is present, load it into content before binding UI.
     const loadedFromHash = FindIt.exporter.loadShareLinkFromHash();
+    initIntro();
     initEditor();
     initPacks();
     initConfigure();

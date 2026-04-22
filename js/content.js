@@ -101,8 +101,17 @@
     emit();
   }
 
+  // Truncating a rich label (contains ~sub~ or ^sup^ tokens) would break
+  // the tokens, so leave rich labels untouched — they're typically short
+  // formulas like H~2~SO~4~ whose visible length is already under the cap.
+  function isRichLabel(word) {
+    const s = String(word);
+    return s.indexOf('~') !== -1 || s.indexOf('^') !== -1;
+  }
+
   function capDisplay(word, max) {
     const limit = max || MAX_DISPLAY_CHARS;
+    if (isRichLabel(word)) return String(word);
     const chars = [...String(word)];
     return chars.length <= limit ? String(word) : chars.slice(0, limit).join('') + '.';
   }

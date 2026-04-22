@@ -14,11 +14,25 @@
     <div class="toolbar-logo">FIND IT <span>— card generator</span></div>
     <div class="toolbar-actions">
       <span class="save-status saved" id="saveStatus">&#10003; saved</span>
+      <button class="btn btn-pdf" id="toolbarPrintBtn" type="button">&#9113; PDF</button>
       <button class="btn btn-ghost" id="resetBtn" type="button">&#8634; reset</button>
     </div>
   </div>
 
   <main class="container">
+    <!-- Intro strip (dismissable) -->
+    <section class="intro" id="intro">
+      <div class="intro-content">
+        <p class="intro-lead">
+          Drop your own words or images and FIND IT builds a <b>Dobble-style</b> deck where every pair of cards shares <em>exactly one</em> symbol — print-ready in seconds.
+        </p>
+        <p class="intro-nudge">
+          New here? Pick a <b>Starter pack</b> below for a one-click demo, or start typing your own terms.
+        </p>
+      </div>
+      <button class="intro-close" id="introClose" type="button" aria-label="dismiss intro">&times;</button>
+    </section>
+
     <!-- Screen 1: Content Editor -->
     <section class="panel" id="screen-editor">
       <h2>Content</h2>
@@ -140,13 +154,12 @@
       <div class="drops-bar" id="dropsBar" hidden></div>
     </section>
 
-    <!-- Screen 4: Export -->
+    <!-- Screen 4: Export (digital only — Print/PDF lives in the toolbar) -->
     <section class="panel" id="screen-export">
-      <h2>Export</h2>
-      <p class="hint">Print-to-PDF uses your browser's print dialog — choose "Save as PDF" as the destination. 9 cards per A4 page with faint cut guides.</p>
+      <h2>Digital exports</h2>
+      <p class="hint">For printable output, use the <b>PDF</b> button in the top bar.</p>
 
       <div class="row export-actions">
-        <button class="btn btn-primary" id="printBtn" type="button">&#9113; Print / PDF</button>
         <button class="btn btn-primary" id="pngBtn" type="button">&#10515; PNG sheet</button>
         <button class="btn btn-ghost" id="shareBtn" type="button">&#128279; Share link</button>
       </div>

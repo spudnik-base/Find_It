@@ -117,10 +117,29 @@
 
     // label
     ctx.fillStyle = '#0d0d0d';
-    ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = 'bold ' + Math.round(item.size) + 'px Nunito, sans-serif';
-    ctx.fillText(item.label, 0, 1);
+
+    if (item.segments) {
+      // Rich label: draw segments left-to-right with sub/sup baseline shift.
+      ctx.textAlign = 'left';
+      const L = FindIt.layout;
+      const subSize = item.size * L.SUB_SCALE;
+      const shift = item.size * L.SUB_SHIFT_FRAC;
+      let x = -item.richWidth / 2;
+      for (const seg of item.segments) {
+        const segSize = seg.style === 'normal' ? item.size : subSize;
+        ctx.font = 'bold ' + Math.round(segSize) + 'px Nunito, sans-serif';
+        const dy =
+          seg.style === 'sub' ? shift :
+          seg.style === 'sup' ? -shift : 0;
+        ctx.fillText(seg.text, x, dy);
+        x += ctx.measureText(seg.text).width;
+      }
+    } else {
+      ctx.textAlign = 'center';
+      ctx.font = 'bold ' + Math.round(item.size) + 'px Nunito, sans-serif';
+      ctx.fillText(item.label, 0, 1);
+    }
 
     ctx.restore();
   }
@@ -188,7 +207,7 @@
 
   // ── top-level: render a single card ────────────────────────────────────
   // cardSymbols: array of symbol objects (content.js shape).
-  // opts: { tint, shape, highlightId, showDebug, sizeVariance }
+  // opts: { tint, shape, highlightId, showDebug, sizeVariance, symbolsPerCard }
   async function renderCard(canvas, cardSymbols, opts) {
     const o = opts || {};
     const ctx = setupCanvas(canvas, o);
@@ -196,6 +215,7 @@
 
     const measured = FindIt.layout.measurePass(ctx, cardSymbols, {
       sizeVariance: o.sizeVariance,
+      symbolsPerCard: o.symbolsPerCard,
     });
     const { placed, dropped } = FindIt.layout.placePass(measured, canvas.width / 2, {
       cx: canvas.width / 2,
