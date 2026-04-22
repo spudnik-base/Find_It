@@ -1,0 +1,130 @@
+/* FIND IT — global styles + print stylesheet.
+   Palette reused from docs/find_it.html for visual consistency. */
+
+:root {
+  --ink: #0d0d0d;
+  --paper: #faf6ee;
+  --yellow: #ffe033;
+  --red: #e8291c;
+  --blue: #1a4ed8;
+  --teal: #00b4a0;
+  --green: #1a8c4e;
+  --shadow: 4px 4px 0px var(--ink);
+  --shadow-lg: 6px 6px 0px var(--ink);
+  --border: 2.5px solid var(--ink);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  background-image: radial-gradient(circle, #d4ccbc 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* ── Toolbar ── */
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--ink);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--yellow);
+}
+
+.toolbar-logo {
+  font-family: 'Bangers', cursive;
+  font-size: 1.6rem;
+  color: var(--yellow);
+  letter-spacing: 3px;
+  text-shadow: 2px 2px 0 var(--red);
+}
+
+.toolbar-logo span {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.save-status {
+  font-family: 'Caveat', cursive;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+.save-status.saved { color: var(--teal); }
+.save-status.saving { color: var(--yellow); }
+
+/* ── Layout ── */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.panel {
+  background: white;
+  border: var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 24px 28px;
+  margin-bottom: 28px;
+  position: relative;
+}
+
+.panel h2 {
+  font-family: 'Bangers', cursive;
+  font-size: 1.7rem;
+  letter-spacing: 2px;
+  color: white;
+  background: var(--ink);
+  padding: 6px 20px;
+  border: var(--border);
+  box-shadow: var(--shadow);
+  display: inline-block;
+  margin-bottom: 18px;
+}
+
+.panel p { margin-bottom: 10px; line-height: 1.6; font-size: 0.95rem; }
+
+.panel ul { list-style: none; padding: 0; margin-top: 10px; }
+.panel ul li {
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--ink);
+  font-size: 0.95rem;
+}
+.panel ul li:last-child { border-bottom: none; }
+
+code {
+  font-family: 'Courier New', monospace;
+  background: var(--ink);
+  color: var(--yellow);
+  padding: 2px 7px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* ── Print ── */
+@media print {
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body { background: white !important; background-image: none !important; }
+  .toolbar { display: none !important; }
+  .container { max-width: 100%; padding: 10mm; }
+  .panel { box-shadow: none; page-break-inside: avoid; }
+  @page { size: A4; margin: 15mm 12mm; }
+}

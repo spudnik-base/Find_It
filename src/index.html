@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIND IT</title>
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="toolbar">
+    <div class="toolbar-logo">FIND IT <span>— card generator</span></div>
+    <span class="save-status" id="saveStatus">phase 1 scaffold</span>
+  </div>
+
+  <main class="container">
+    <section class="panel">
+      <h2>Scaffold check</h2>
+      <p id="boot-status">Loading…</p>
+      <p>Open the DevTools console and run <code>FindIt.selfTest()</code> to verify the projective-plane generator.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Valid set shapes</h2>
+      <ul id="set-shapes"></ul>
+    </section>
+  </main>
+
+  <script src="js/projective.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/exporter.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
