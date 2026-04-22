@@ -17,6 +17,45 @@
   const BORDER = 14;            // px inset from the card boundary
   const MAX_ATTEMPTS = 500;
 
+  // Base symbol sizes (measured for canvas 640 / radius 320) chosen so
+  // that the full n symbols can be packed without the layout engine
+  // dropping any. Denser cards (n = 8) use smaller symbols than sparse
+  // cards (n = 4).
+  function baseSizesForN(n) {
+    const v = Number(n) || 6;
+    if (v <= 4) return { wordBase: 40, imageBase: 150 };
+    if (v <= 6) return { wordBase: 32, imageBase: 120 };
+    return       { wordBase: 24, imageBase: 90 };
+  }
+
+  // ── sub/sup rich-text parsing ──────────────────────────────────────────
+  // Markdown-style tokens: ~foo~ => subscript, ^foo^ => superscript.
+  // Returns null if the label has no rich tokens (fast path).
+  function parseRich(text) {
+    if (!text || (text.indexOf('~') === -1 && text.indexOf('^') === -1)) return null;
+    const segs = [];
+    let i = 0;
+    while (i < text.length) {
+      const ch = text[i];
+      if (ch === '~' || ch === '^') {
+        const end = text.indexOf(ch, i + 1);
+        if (end > i) {
+          segs.push({ text: text.slice(i + 1, end), style: ch === '~' ? 'sub' : 'sup' });
+          i = end + 1;
+          continue;
+        }
+      }
+      let j = i;
+      while (j < text.length && text[j] !== '~' && text[j] !== '^') j++;
+      if (j > i) segs.push({ text: text.slice(i, j), style: 'normal' });
+      i = j;
+    }
+    return segs;
+  }
+
+  const SUB_SCALE = 0.62;
+  const SUB_SHIFT_FRAC = 0.22;  // baseline offset as fraction of base size
+
   // ── size assignment (brief Ch 4) ───────────────────────────────────────
   function randSize(baseMin, baseMax) {
     const t = Math.random();
@@ -81,8 +120,9 @@
     const o = opts || {};
     const wordFont = o.wordFont || 'bold 34px Nunito, sans-serif';
     const sizeVariance = Math.max(1, Math.min(3, o.sizeVariance || 2.0));
-    const wordBase = o.wordBase || 34;
-    const imageBase = o.imageBase || 120;
+    const defaults = o.symbolsPerCard ? baseSizesForN(o.symbolsPerCard) : { wordBase: 34, imageBase: 120 };
+    const wordBase = o.wordBase || defaults.wordBase;
+    const imageBase = o.imageBase || defaults.imageBase;
 
     ctx.save();
     ctx.font = wordFont;
@@ -100,10 +140,45 @@
       }
       // word
       const size = randSize(wordBase, wordBase * sizeVariance);
-      const pxRatio = size / wordBase;
-      const label = sym.display || sym.value || '';
+      const rawLabel = sym.display || sym.value || '';
+      const segments = parseRich(rawLabel);
+
+      if (segments) {
+        // Rich label with sub/sup. Measure each segment at its own size
+        // and sum widths; height accounts for the vertical shift.
+        let totalW = 0;
+        let maxAscent = size * 0.75;
+        let maxDescent = size * 0.25;
+        const subSize = size * SUB_SCALE;
+        const shift = size * SUB_SHIFT_FRAC;
+        for (const seg of segments) {
+          const segSize = seg.style === 'normal' ? size : subSize;
+          ctx.font = wordFont.replace(/\d+px/, Math.round(segSize) + 'px');
+          const m = ctx.measureText(seg.text);
+          totalW += m.width;
+          const a = m.actualBoundingBoxAscent || segSize * 0.75;
+          const d = m.actualBoundingBoxDescent || segSize * 0.25;
+          if (seg.style === 'sup') maxAscent = Math.max(maxAscent, a + shift);
+          else if (seg.style === 'sub') maxDescent = Math.max(maxDescent, d + shift);
+          else { maxAscent = Math.max(maxAscent, a); maxDescent = Math.max(maxDescent, d); }
+        }
+        return {
+          sym,
+          type: 'word',
+          label: rawLabel,
+          segments,
+          size,
+          ascent: maxAscent,
+          descent: maxDescent,
+          hw: totalW / 2 + WORD_PADDING,
+          hh: (maxAscent + maxDescent) / 2 + WORD_PADDING,
+          richWidth: totalW,
+        };
+      }
+
+      // plain label fast path
       ctx.font = wordFont.replace(/\d+px/, Math.round(size) + 'px');
-      const m = ctx.measureText(label);
+      const m = ctx.measureText(rawLabel);
       const textW = m.width;
       const ascent = m.actualBoundingBoxAscent || size * 0.75;
       const descent = m.actualBoundingBoxDescent || size * 0.25;
@@ -111,9 +186,8 @@
       return {
         sym,
         type: 'word',
-        label,
+        label: rawLabel,
         size,
-        pxRatio,
         ascent,
         descent,
         hw: textW / 2 + WORD_PADDING,
@@ -185,6 +259,10 @@
     OBB_GAP,
     BORDER,
     MAX_ATTEMPTS,
+    SUB_SCALE,
+    SUB_SHIFT_FRAC,
+    baseSizesForN,
+    parseRich,
     randSize,
     obbCorners,
     obbOverlap,

@@ -119,6 +119,45 @@ body {
 }
 .panel .btn-ghost:hover { background: var(--yellow); }
 
+/* ── Intro strip ── */
+.intro {
+  background: var(--yellow);
+  border: var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 18px 48px 18px 22px;
+  margin-bottom: 28px;
+  position: relative;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.intro[hidden] { display: none; }
+.intro-content { flex: 1; }
+.intro-lead {
+  font-size: 1.02rem;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.intro-nudge {
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+.intro-close {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  width: 28px;
+  height: 28px;
+  font-family: 'Bangers', cursive;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.intro-close:hover { background: var(--red); color: white; }
+
 /* ── Layout ── */
 .container {
   max-width: 960px;

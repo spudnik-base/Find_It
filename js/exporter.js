@@ -16,10 +16,10 @@
   async function buildDeckForExport() {
     const content = FindIt.content.get();
     const deck = FindIt.deck.buildDeck(content.symbols, content.symbolsPerCard);
-    return { deck, sizeVariance: content.sizeVariance };
+    return { deck, sizeVariance: content.sizeVariance, symbolsPerCard: content.symbolsPerCard };
   }
 
-  async function renderAllCards(deck, sizeVariance, shape) {
+  async function renderAllCards(deck, sizeVariance, shape, symbolsPerCard) {
     const dataURLs = [];
     const size = FindIt.renderer.CANVAS_SIZE;
     // Render sequentially to avoid large parallel memory spikes with many
@@ -34,6 +34,7 @@
         tint: FindIt.renderer.pickTint(i),
         shape: shape || 'circle',
         sizeVariance,
+        symbolsPerCard,
       });
       dataURLs.push(canvas.toDataURL('image/png'));
     }
@@ -88,8 +89,8 @@
 
   async function printDeck(opts) {
     const o = opts || {};
-    const { deck, sizeVariance } = await buildDeckForExport();
-    const dataURLs = await renderAllCards(deck, sizeVariance, o.shape);
+    const { deck, sizeVariance, symbolsPerCard } = await buildDeckForExport();
+    const dataURLs = await renderAllCards(deck, sizeVariance, o.shape, symbolsPerCard);
     const container = buildPrintGrid(dataURLs);
     await waitForImages(container);
     // Defer slightly so the browser has painted the grid before print.
@@ -101,8 +102,8 @@
 
   async function downloadPNGSheet(opts) {
     const o = opts || {};
-    const { deck, sizeVariance } = await buildDeckForExport();
-    const dataURLs = await renderAllCards(deck, sizeVariance, o.shape);
+    const { deck, sizeVariance, symbolsPerCard } = await buildDeckForExport();
+    const dataURLs = await renderAllCards(deck, sizeVariance, o.shape, symbolsPerCard);
 
     // Build a single composite canvas: 3 cards wide, rows stacked.
     const cols = 3;

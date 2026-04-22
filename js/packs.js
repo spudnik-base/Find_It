@@ -585,7 +585,54 @@
     ],
   };
 
-  const PACKS = [IB_BIO_MOLECULES, SOLAR_SYSTEM, BODY_PARTS, SPANISH_BASICS, KS1_READING];
+  // ─── GCSE Chemistry ────────────────────────────────────────────────────
+  // Uses markdown-style sub/sup tokens rendered by layout.js/renderer.js:
+  //   ~n~  -> subscript (H~2~O)
+  //   ^n+^ -> superscript (Fe^2+^)
+  const GCSE_CHEMISTRY = {
+    id: 'gcse-chemistry',
+    name: 'GCSE Chemistry — Elements & Compounds',
+    symbolsPerCard: 6,
+    abbreviations: {},
+    symbols: [
+      // 16 elements
+      { type: 'word', value: 'H' },
+      { type: 'word', value: 'He' },
+      { type: 'word', value: 'C' },
+      { type: 'word', value: 'N' },
+      { type: 'word', value: 'O' },
+      { type: 'word', value: 'F' },
+      { type: 'word', value: 'Na' },
+      { type: 'word', value: 'Mg' },
+      { type: 'word', value: 'Al' },
+      { type: 'word', value: 'S' },
+      { type: 'word', value: 'Cl' },
+      { type: 'word', value: 'K' },
+      { type: 'word', value: 'Ca' },
+      { type: 'word', value: 'Fe' },
+      { type: 'word', value: 'Cu' },
+      { type: 'word', value: 'Zn' },
+      // 9 compounds with subscripts
+      { type: 'word', value: 'H~2~O' },
+      { type: 'word', value: 'CO~2~' },
+      { type: 'word', value: 'NaCl' },
+      { type: 'word', value: 'HCl' },
+      { type: 'word', value: 'NaOH' },
+      { type: 'word', value: 'H~2~SO~4~' },
+      { type: 'word', value: 'CH~4~' },
+      { type: 'word', value: 'NH~3~' },
+      { type: 'word', value: 'CaCO~3~' },
+      // 6 oxidation-state ions with superscripts
+      { type: 'word', value: 'Fe^2+^' },
+      { type: 'word', value: 'Fe^3+^' },
+      { type: 'word', value: 'Cu^2+^' },
+      { type: 'word', value: 'Al^3+^' },
+      { type: 'word', value: 'O^2-^' },
+      { type: 'word', value: 'Cl^-^' },
+    ],
+  };
+
+  const PACKS = [IB_BIO_MOLECULES, GCSE_CHEMISTRY, SOLAR_SYSTEM, BODY_PARTS, SPANISH_BASICS, KS1_READING];
 
   function get(id) {
     return PACKS.find((p) => p.id === id) || null;

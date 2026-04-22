@@ -83,6 +83,19 @@
     lastSaveTick = Date.now();
   }
 
+  // ── intro strip ────────────────────────────────────────────────────────
+  function initIntro() {
+    const el = document.getElementById('intro');
+    const btn = document.getElementById('introClose');
+    if (!el || !btn) return;
+    const settings = loadSettings();
+    if (settings.introDismissed) el.hidden = true;
+    btn.addEventListener('click', () => {
+      el.hidden = true;
+      saveSettings({ introDismissed: true });
+    });
+  }
+
   // ── starter packs ──────────────────────────────────────────────────────
   function initPacks() {
     const select = document.getElementById('packSelect');
@@ -523,6 +536,7 @@
       tint: FindIt.renderer.pickTint(cardIdx),
       shape: state.cardShape,
       sizeVariance: content.sizeVariance,
+      symbolsPerCard: content.symbolsPerCard,
       highlightId: o.highlightId,
     });
     if (result && result.dropped && result.dropped.length) {
@@ -699,6 +713,7 @@
   function boot() {
     // If a share link is present, load it into content before binding UI.
     const loadedFromHash = FindIt.exporter.loadShareLinkFromHash();
+    initIntro();
     initEditor();
     initPacks();
     initConfigure();
