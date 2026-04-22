@@ -135,6 +135,32 @@ body {
   margin-bottom: 22px;
 }
 
+/* ── Pack loader ── */
+.pack-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  margin-bottom: 18px;
+}
+.pack-label {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 1.5px;
+  font-size: 0.95rem;
+}
+.pack-row select {
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 6px 10px;
+  border: var(--border);
+  background: white;
+  color: var(--ink);
+  min-width: 220px;
+}
+
 /* ── Form fields ── */
 .field { display: block; margin-bottom: 18px; }
 .field-label {

@@ -83,6 +83,36 @@
     lastSaveTick = Date.now();
   }
 
+  // ── starter packs ──────────────────────────────────────────────────────
+  function initPacks() {
+    const select = document.getElementById('packSelect');
+    const btn = document.getElementById('loadPackBtn');
+    if (!select || !btn) return;
+    const packs = (FindIt.packs && FindIt.packs.all) || [];
+    for (const p of packs) {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name + ' (' + p.symbols.length + ' symbols)';
+      select.appendChild(opt);
+    }
+    btn.addEventListener('click', () => {
+      const id = select.value;
+      if (!id) return;
+      const pack = FindIt.packs.get(id);
+      if (!pack) return;
+      const cur = C().get().symbols.length;
+      const msg = cur > 0
+        ? 'Replace current ' + cur + ' symbol(s) with "' + pack.name + '"?'
+        : 'Load "' + pack.name + '"?';
+      if (!confirm(msg)) return;
+      const res = FindIt.packs.apply(pack);
+      if (res.ok) {
+        toast('Loaded ' + pack.name + ' — ' + res.loaded + ' symbols.');
+        document.getElementById('setName').value = pack.name;
+      }
+    });
+  }
+
   // ── screen 1: editor ───────────────────────────────────────────────────
   function initEditor() {
     const content = C();
@@ -665,6 +695,7 @@
     // If a share link is present, load it into content before binding UI.
     const loadedFromHash = FindIt.exporter.loadShareLinkFromHash();
     initEditor();
+    initPacks();
     initConfigure();
     initPreview();
     initExport();
