@@ -177,7 +177,9 @@ body {
   font-style: italic;
 }
 
-.row { display: flex; gap: 10px; align-items: center; margin-top: 12px; }
+.row { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+
+.export-actions .btn { font-size: 1rem; padding: 10px 20px; }
 
 /* ── Input tabs ── */
 .input-tabs {
@@ -450,6 +452,9 @@ input[type="range"] {
 .match-badge.ok { background: var(--green); color: white; }
 .match-badge.bad { background: var(--red); color: white; }
 
+/* ── Print container (hidden by default, revealed only on print) ── */
+#findit-print-container { display: none; }
+
 /* ── Print ── */
 @media print {
   *, *::before, *::after {
@@ -457,8 +462,59 @@ input[type="range"] {
     print-color-adjust: exact !important;
   }
   body { background: white !important; background-image: none !important; }
-  .toolbar { display: none !important; }
-  .container { max-width: 100%; padding: 10mm; }
-  .panel { box-shadow: none; page-break-inside: avoid; }
-  @page { size: A4; margin: 15mm 12mm; }
+  .toolbar, .container { display: none !important; }
+
+  #findit-print-container { display: block; }
+
+  .print-page {
+    page-break-after: always;
+    break-after: page;
+  }
+  .print-page:last-child { page-break-after: auto; }
+
+  .print-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 55mm);
+    grid-auto-rows: 55mm;
+    gap: 5mm;
+    padding: 15mm 12mm;
+    justify-content: center;
+  }
+
+  .print-card-wrap {
+    width: 55mm;
+    height: 55mm;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    position: relative;
+  }
+  .print-card-wrap img {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Subtle cut guides — corner marks on each card. */
+  .print-card-wrap::before,
+  .print-card-wrap::after {
+    content: '';
+    position: absolute;
+    width: 3mm;
+    height: 3mm;
+    border-color: #bbb;
+    border-style: solid;
+    border-width: 0;
+  }
+  .print-card-wrap::before {
+    top: -1mm; left: -1mm;
+    border-top-width: 0.3mm;
+    border-left-width: 0.3mm;
+  }
+  .print-card-wrap::after {
+    bottom: -1mm; right: -1mm;
+    border-bottom-width: 0.3mm;
+    border-right-width: 0.3mm;
+  }
+
+  @page { size: A4 portrait; margin: 0; }
 }

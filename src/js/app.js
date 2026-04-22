@@ -504,11 +504,69 @@
     state.previewIndices.forEach((_, slot) => drawPreviewCard(slot));
   }
 
+  // ── screen 4: export ───────────────────────────────────────────────────
+  function initExport() {
+    const statusEl = document.getElementById('exportStatus');
+    const setStatus = (text) => { if (statusEl) statusEl.textContent = text || ''; };
+
+    document.getElementById('printBtn').addEventListener('click', async () => {
+      const s = C().get();
+      if (s.symbols.length === 0) {
+        setStatus('Add some symbols first.');
+        return;
+      }
+      setStatus('Building deck…');
+      try {
+        const result = await FindIt.exporter.printDeck({ shape: state.cardShape });
+        setStatus('Opened print dialog for ' + result.cards + ' cards.');
+      } catch (err) {
+        console.error(err);
+        setStatus('Print failed: ' + err.message);
+      }
+    });
+
+    document.getElementById('pngBtn').addEventListener('click', async () => {
+      const s = C().get();
+      if (s.symbols.length === 0) {
+        setStatus('Add some symbols first.');
+        return;
+      }
+      setStatus('Rendering PNG sheet…');
+      try {
+        await FindIt.exporter.downloadPNGSheet({ shape: state.cardShape });
+        setStatus('PNG sheet downloaded.');
+      } catch (err) {
+        console.error(err);
+        setStatus('PNG export failed: ' + err.message);
+      }
+    });
+
+    document.getElementById('shareBtn').addEventListener('click', async () => {
+      try {
+        const { url, omittedImages } = FindIt.exporter.makeShareLink();
+        try {
+          await navigator.clipboard.writeText(url);
+          setStatus(
+            'Share link copied to clipboard' +
+              (omittedImages ? ' (images omitted — URLs have a size limit).' : '.')
+          );
+        } catch {
+          setStatus('Share link: ' + url);
+        }
+      } catch (err) {
+        setStatus('Share failed: ' + err.message);
+      }
+    });
+  }
+
   // ── boot ───────────────────────────────────────────────────────────────
   function boot() {
+    // If a share link is present, load it into content before binding UI.
+    FindIt.exporter.loadShareLinkFromHash();
     initEditor();
     initConfigure();
     initPreview();
+    initExport();
     refreshConfigUI();
     schedulePreviewRebuild();
     // Rebuild preview + refresh config when content changes (symbols added,

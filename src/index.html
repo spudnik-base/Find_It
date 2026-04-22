@@ -119,7 +119,7 @@
     <!-- Screen 3: Preview -->
     <section class="panel" id="screen-preview">
       <h2>Preview</h2>
-      <p class="hint">Click a single card to re-roll its layout. Click two cards to highlight the shared symbol.</p>
+      <p class="hint">Click two cards to highlight the shared symbol. Click a selected card to deselect.</p>
 
       <div class="preview-grid" id="previewGrid"></div>
 
@@ -128,6 +128,19 @@
         <span id="matchText"></span>
         <button class="btn btn-ghost" id="clearMatchBtn" type="button">clear</button>
       </div>
+    </section>
+
+    <!-- Screen 4: Export -->
+    <section class="panel" id="screen-export">
+      <h2>Export</h2>
+      <p class="hint">Print-to-PDF uses your browser's print dialog — choose "Save as PDF" as the destination. 9 cards per A4 page with faint cut guides.</p>
+
+      <div class="row export-actions">
+        <button class="btn btn-primary" id="printBtn" type="button">&#9113; Print / PDF</button>
+        <button class="btn btn-primary" id="pngBtn" type="button">&#10515; PNG sheet</button>
+        <button class="btn btn-ghost" id="shareBtn" type="button">&#128279; Share link</button>
+      </div>
+      <p class="hint" id="exportStatus"></p>
     </section>
   </main>
 
