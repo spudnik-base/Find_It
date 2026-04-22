@@ -2,6 +2,68 @@
 (function () {
   'use strict';
   const C = () => window.FindIt.content;
+  const SETTINGS_KEY = 'findit-settings-v1';
+
+  // ── toasts ─────────────────────────────────────────────────────────────
+  function toast(text, kind, timeoutMs) {
+    const stack = document.getElementById('toastStack');
+    if (!stack) return;
+    const t = document.createElement('div');
+    t.className = 'toast' + (kind ? ' ' + kind : '');
+    const close = document.createElement('button');
+    close.className = 'toast-close';
+    close.type = 'button';
+    close.setAttribute('aria-label', 'dismiss');
+    close.textContent = '×';
+    close.addEventListener('click', () => t.remove());
+    t.appendChild(close);
+    const msg = document.createElement('span');
+    msg.textContent = text;
+    t.appendChild(msg);
+    stack.appendChild(t);
+    if (timeoutMs !== 0) {
+      setTimeout(() => t.remove(), timeoutMs || 5000);
+    }
+  }
+
+  // ── settings (ui prefs outside of content schema) ──────────────────────
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return {};
+  }
+  function saveSettings(patch) {
+    const cur = loadSettings();
+    const next = { ...cur, ...patch };
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+    } catch (err) {
+      handleStorageError(err);
+    }
+  }
+
+  function handleStorageError(err) {
+    if (!err) return;
+    const name = err.name || '';
+    if (/Quota/i.test(name)) {
+      toast('Browser storage is full. Remove some images or reset the set to free space.', 'warn', 0);
+    } else {
+      toast('Storage error: ' + (err.message || name), 'err');
+    }
+  }
+
+  function checkStorageUsage() {
+    // Rough check — warn at >80% of a conservative 5MB cap.
+    try {
+      const used = FindIt.content.storageUsageBytes();
+      const cap = 5 * 1024 * 1024;
+      if (used > cap * 0.8) {
+        toast('Local storage is >80% full. Consider removing images or resetting the set.', 'warn');
+      }
+    } catch {}
+  }
 
   // ── save-status indicator ──────────────────────────────────────────────
   const saveStatusEl = () => document.getElementById('saveStatus');
@@ -154,7 +216,10 @@
       renderChipgrid(state);
       renderCounter(state);
       renderAbbrList(state);
-      if (evt && evt.savedAt) markSaved();
+      if (evt && evt.savedAt) {
+        markSaved();
+        if (evt.res && !evt.res.ok) handleStorageError(evt.res.error);
+      }
     });
 
     // Initial render.
@@ -310,15 +375,19 @@
       schedulePreviewRebuild();
     });
 
-    // Card-shape segmented control. Persisted in memory only (not in content
-    // schema) for now — can be promoted to settings in Phase 6.
+    // Card-shape segmented control. Persisted in findit-settings-v1.
     document.querySelectorAll('[data-shape]').forEach((btn) => {
       btn.addEventListener('click', () => {
         state.cardShape = btn.dataset.shape;
+        saveSettings({ cardShape: state.cardShape });
         refreshConfigUI();
         schedulePreviewRebuild();
       });
     });
+
+    // Restore shape from settings on boot.
+    const settings = loadSettings();
+    if (settings.cardShape) state.cardShape = settings.cardShape;
   }
 
   function refreshConfigUI() {
@@ -386,6 +455,7 @@
     state.deck = deck;
     state.previewIndices = pickPreviewIndices(deck.cards.length);
     state.selected = [];
+    renderDropsBar(deck);
 
     grid.innerHTML = '';
     const frag = document.createDocumentFragment();
@@ -419,12 +489,43 @@
     const cardSymbols = state.deck.cards[cardIdx];
     const content = C().get();
     const o = opts || {};
-    await FindIt.renderer.renderCard(canvas, cardSymbols, {
+    const result = await FindIt.renderer.renderCard(canvas, cardSymbols, {
       tint: FindIt.renderer.pickTint(cardIdx),
       shape: state.cardShape,
       sizeVariance: content.sizeVariance,
       highlightId: o.highlightId,
     });
+    if (result && result.dropped && result.dropped.length) {
+      console.warn(
+        'layout: dropped ' + result.dropped.length + ' symbol(s) on card #' + (cardIdx + 1) +
+        ' — try reducing size variance or using shorter labels.'
+      );
+    }
+  }
+
+  function renderDropsBar(deck) {
+    const bar = document.getElementById('dropsBar');
+    if (!bar) return;
+    const pieces = [];
+    if (deck.blanksAdded > 0) {
+      pieces.push(
+        deck.blanksAdded + ' blank placeholder(s) added — add ' + deck.blanksAdded + ' more symbols for a full set.'
+      );
+    }
+    if (deck.droppedSymbols.length > 0) {
+      const names = deck.droppedSymbols.slice(0, 5).map((s) => s.display || s.value).join(', ');
+      const suffix = deck.droppedSymbols.length > 5 ? ', …' : '';
+      pieces.push(
+        deck.droppedSymbols.length + ' extra symbol(s) ignored: ' + names + suffix
+      );
+    }
+    if (!pieces.length) {
+      bar.hidden = true;
+      bar.textContent = '';
+      return;
+    }
+    bar.hidden = false;
+    bar.textContent = pieces.join('  —  ');
   }
 
   function onPreviewClick(slot) {
@@ -562,13 +663,19 @@
   // ── boot ───────────────────────────────────────────────────────────────
   function boot() {
     // If a share link is present, load it into content before binding UI.
-    FindIt.exporter.loadShareLinkFromHash();
+    const loadedFromHash = FindIt.exporter.loadShareLinkFromHash();
     initEditor();
     initConfigure();
     initPreview();
     initExport();
     refreshConfigUI();
     schedulePreviewRebuild();
+    if (loadedFromHash) {
+      toast('Loaded set from share link.');
+      // Clear the hash so reloads don't keep overwriting edits.
+      try { history.replaceState(null, '', location.pathname); } catch {}
+    }
+    checkStorageUsage();
     // Rebuild preview + refresh config when content changes (symbols added,
     // etc). Debounced to avoid hammering on rapid edits.
     C().onChange(() => {

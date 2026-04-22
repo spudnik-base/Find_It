@@ -452,6 +452,52 @@ input[type="range"] {
 .match-badge.ok { background: var(--green); color: white; }
 .match-badge.bad { background: var(--red); color: white; }
 
+/* ── Toast ── */
+.toast-stack {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 200;
+  max-width: min(420px, calc(100vw - 48px));
+}
+.toast {
+  background: white;
+  color: var(--ink);
+  border: var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  animation: toast-in 0.15s ease-out;
+}
+.toast.warn { background: var(--yellow); }
+.toast.err { background: var(--red); color: white; }
+.toast .toast-close {
+  float: right;
+  margin-left: 10px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-weight: 800;
+}
+@keyframes toast-in {
+  from { transform: translateX(12px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Dropped-symbol badge on preview. */
+.drops-bar {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: var(--yellow);
+  border: 2px solid var(--ink);
+  font-size: 0.88rem;
+}
+
 /* ── Print container (hidden by default, revealed only on print) ── */
 #findit-print-container { display: none; }
 
