@@ -283,6 +283,240 @@
     }
   }
 
+  // ── screen 2: configure ────────────────────────────────────────────────
+  function initConfigure() {
+    const content = C();
+
+    // Symbols-per-card segmented control.
+    document.querySelectorAll('[data-spc]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const v = Number(btn.dataset.spc);
+        markSaving();
+        content.setSymbolsPerCard(v);
+        refreshConfigUI();
+        schedulePreviewRebuild();
+      });
+    });
+
+    // Size variance slider.
+    const vSlider = document.getElementById('varianceSlider');
+    const vLabel = document.getElementById('varianceLabel');
+    vSlider.addEventListener('input', () => {
+      vLabel.textContent = Number(vSlider.value).toFixed(1) + '×';
+    });
+    vSlider.addEventListener('change', () => {
+      markSaving();
+      content.setSizeVariance(vSlider.value);
+      schedulePreviewRebuild();
+    });
+
+    // Card-shape segmented control. Persisted in memory only (not in content
+    // schema) for now — can be promoted to settings in Phase 6.
+    document.querySelectorAll('[data-shape]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.cardShape = btn.dataset.shape;
+        refreshConfigUI();
+        schedulePreviewRebuild();
+      });
+    });
+  }
+
+  function refreshConfigUI() {
+    const s = C().get();
+    document.querySelectorAll('[data-spc]').forEach((btn) => {
+      btn.classList.toggle('active', Number(btn.dataset.spc) === s.symbolsPerCard);
+    });
+    document.querySelectorAll('[data-shape]').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.shape === state.cardShape);
+    });
+    const vSlider = document.getElementById('varianceSlider');
+    const vLabel = document.getElementById('varianceLabel');
+    if (vSlider) vSlider.value = String(s.sizeVariance || 2);
+    if (vLabel) vLabel.textContent = Number(s.sizeVariance || 2).toFixed(1) + '×';
+
+    // Stats line.
+    const shape = FindIt.setShape(s.symbolsPerCard);
+    const got = s.symbols.length;
+    const statsEl = document.getElementById('stats');
+    if (statsEl) {
+      statsEl.textContent = shape.totalCards + ' cards · ' +
+        Math.min(got, shape.totalSymbols) + '/' + shape.totalSymbols + ' symbols · ' +
+        shape.symbolsPerCard + ' per card';
+    }
+  }
+
+  // ── screen 3: preview ──────────────────────────────────────────────────
+  const PREVIEW_COUNT = 6;
+  const state = {
+    cardShape: 'circle',
+    deck: null,
+    previewIndices: [],
+    selected: [],
+    rebuildTimer: null,
+  };
+
+  function initPreview() {
+    document.getElementById('clearMatchBtn').addEventListener('click', () => {
+      state.selected = [];
+      refreshSelectionUI();
+      document.getElementById('matchBar').hidden = true;
+      redrawAllPreviews();
+    });
+  }
+
+  function schedulePreviewRebuild() {
+    clearTimeout(state.rebuildTimer);
+    state.rebuildTimer = setTimeout(rebuildPreview, 120);
+  }
+
+  function pickPreviewIndices(total) {
+    const count = Math.min(PREVIEW_COUNT, total);
+    // Use the first `count` cards for stable preview slots.
+    const out = [];
+    for (let i = 0; i < count; i++) out.push(i);
+    return out;
+  }
+
+  function rebuildPreview() {
+    const s = C().get();
+    const grid = document.getElementById('previewGrid');
+    if (!grid) return;
+
+    const deck = FindIt.deck.buildDeck(s.symbols, s.symbolsPerCard);
+    state.deck = deck;
+    state.previewIndices = pickPreviewIndices(deck.cards.length);
+    state.selected = [];
+
+    grid.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    state.previewIndices.forEach((cardIdx, slot) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'preview-card';
+      wrap.dataset.slot = String(slot);
+      wrap.dataset.cardIdx = String(cardIdx);
+      const tag = document.createElement('div');
+      tag.className = 'card-index';
+      tag.textContent = '#' + (cardIdx + 1);
+      wrap.appendChild(tag);
+      const canvas = document.createElement('canvas');
+      wrap.appendChild(canvas);
+      wrap.addEventListener('click', () => onPreviewClick(slot));
+      frag.appendChild(wrap);
+    });
+    grid.appendChild(frag);
+
+    // Initial render for each canvas.
+    state.previewIndices.forEach((cardIdx, slot) => drawPreviewCard(slot));
+
+    document.getElementById('matchBar').hidden = true;
+  }
+
+  async function drawPreviewCard(slot, opts) {
+    const wrap = document.querySelector('.preview-card[data-slot="' + slot + '"]');
+    if (!wrap) return;
+    const canvas = wrap.querySelector('canvas');
+    const cardIdx = state.previewIndices[slot];
+    const cardSymbols = state.deck.cards[cardIdx];
+    const content = C().get();
+    const o = opts || {};
+    await FindIt.renderer.renderCard(canvas, cardSymbols, {
+      tint: FindIt.renderer.pickTint(cardIdx),
+      shape: state.cardShape,
+      sizeVariance: content.sizeVariance,
+      highlightId: o.highlightId,
+    });
+  }
+
+  function onPreviewClick(slot) {
+    // Same-slot second click clears it.
+    const idx = state.selected.indexOf(slot);
+    if (idx !== -1) {
+      state.selected.splice(idx, 1);
+      refreshSelectionUI();
+      document.getElementById('matchBar').hidden = true;
+      redrawAllPreviews();
+      return;
+    }
+
+    // If no selection yet and single-click on already-selected card: re-roll.
+    if (state.selected.length === 0) {
+      state.selected = [slot];
+      refreshSelectionUI();
+      // On second click (below), we'll check match. If the user clicks the
+      // same card twice, we treat the second as "clear". So we need another
+      // gesture for re-roll — shift-click or dblclick would work; for now,
+      // a single click selects, and pressing the card again unselects. Re-
+      // rolling happens via the "clear" button + configure change. Simpler.
+      document.getElementById('matchBar').hidden = true;
+      return;
+    }
+
+    if (state.selected.length === 1) {
+      state.selected.push(slot);
+      refreshSelectionUI();
+      runMatchCheck();
+      return;
+    }
+
+    // Already 2 selected: reset to this one.
+    state.selected = [slot];
+    refreshSelectionUI();
+    document.getElementById('matchBar').hidden = true;
+    redrawAllPreviews();
+  }
+
+  function refreshSelectionUI() {
+    document.querySelectorAll('.preview-card').forEach((el) => {
+      const slot = Number(el.dataset.slot);
+      el.classList.toggle('selected', state.selected.includes(slot));
+    });
+  }
+
+  function runMatchCheck() {
+    if (state.selected.length !== 2) return;
+    const [a, b] = state.selected.map((slot) => {
+      const cardIdx = state.previewIndices[slot];
+      return state.deck.cards[cardIdx];
+    });
+    const shared = FindIt.deck.findSharedSymbol(a, b);
+    const bar = document.getElementById('matchBar');
+    const badge = document.getElementById('matchBadge');
+    const text = document.getElementById('matchText');
+    if (shared) {
+      badge.className = 'match-badge ok';
+      badge.textContent = 'MATCH ✓';
+      text.textContent = shared.isBlank
+        ? '(shared blank placeholder)'
+        : 'shared: ' + (shared.display || shared.value || 'image');
+      // Draw halo on both cards.
+      state.selected.forEach((slot) =>
+        drawPreviewCard(slot, { highlightId: shared.id })
+      );
+    } else {
+      badge.className = 'match-badge bad';
+      badge.textContent = 'MISMATCH ✗';
+      text.textContent = 'No shared symbol — this should never happen; please report.';
+    }
+    bar.hidden = false;
+  }
+
+  function redrawAllPreviews() {
+    state.previewIndices.forEach((_, slot) => drawPreviewCard(slot));
+  }
+
   // ── boot ───────────────────────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', initEditor);
+  function boot() {
+    initEditor();
+    initConfigure();
+    initPreview();
+    refreshConfigUI();
+    schedulePreviewRebuild();
+    // Rebuild preview + refresh config when content changes (symbols added,
+    // etc). Debounced to avoid hammering on rapid edits.
+    C().onChange(() => {
+      refreshConfigUI();
+      schedulePreviewRebuild();
+    });
+  }
+  document.addEventListener('DOMContentLoaded', boot);
 })();

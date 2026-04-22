@@ -85,12 +85,57 @@
         <ul class="abbr-list" id="abbrList"></ul>
       </details>
     </section>
+
+    <!-- Screen 2: Configure -->
+    <section class="panel" id="screen-configure">
+      <h2>Configure</h2>
+
+      <div class="field">
+        <span class="field-label">Symbols per card</span>
+        <div class="segmented" role="radiogroup" aria-label="symbols per card">
+          <button class="seg" data-spc="4" role="radio" type="button">4</button>
+          <button class="seg" data-spc="6" role="radio" type="button">6</button>
+          <button class="seg" data-spc="8" role="radio" type="button">8</button>
+        </div>
+        <p class="hint">Only values that map to a valid projective plane are available (4, 6, 8).</p>
+      </div>
+
+      <div class="field">
+        <span class="field-label">Size variance <span id="varianceLabel">2.0&times;</span></span>
+        <input id="varianceSlider" type="range" min="1" max="3" step="0.1" value="2">
+      </div>
+
+      <div class="field">
+        <span class="field-label">Card shape</span>
+        <div class="segmented" role="radiogroup" aria-label="card shape">
+          <button class="seg" data-shape="circle" role="radio" type="button">circle</button>
+          <button class="seg" data-shape="rounded" role="radio" type="button">rounded</button>
+        </div>
+      </div>
+
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <!-- Screen 3: Preview -->
+    <section class="panel" id="screen-preview">
+      <h2>Preview</h2>
+      <p class="hint">Click a single card to re-roll its layout. Click two cards to highlight the shared symbol.</p>
+
+      <div class="preview-grid" id="previewGrid"></div>
+
+      <div class="match-bar" id="matchBar" hidden>
+        <span id="matchBadge"></span>
+        <span id="matchText"></span>
+        <button class="btn btn-ghost" id="clearMatchBtn" type="button">clear</button>
+      </div>
+    </section>
   </main>
 
   <script src="js/projective.js"></script>
   <script src="js/content.js"></script>
   <script src="js/layout.js"></script>
   <script src="js/renderer.js"></script>
+  <script src="js/deck.js"></script>
   <script src="js/exporter.js"></script>
   <script src="js/app.js"></script>
 </body>

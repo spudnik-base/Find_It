@@ -350,6 +350,106 @@ body {
   margin-right: 8px;
 }
 
+/* ── Segmented controls ── */
+.segmented {
+  display: inline-flex;
+  gap: 0;
+  border: var(--border);
+  box-shadow: var(--shadow);
+}
+.seg {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 2px;
+  font-size: 1rem;
+  padding: 8px 22px;
+  background: var(--paper);
+  color: var(--ink);
+  border: none;
+  border-right: 2px solid var(--ink);
+  cursor: pointer;
+}
+.seg:last-child { border-right: none; }
+.seg.active { background: var(--yellow); }
+.seg[disabled] { color: #999; cursor: not-allowed; }
+
+input[type="range"] {
+  width: 100%;
+  max-width: 360px;
+  accent-color: var(--red);
+}
+
+/* ── Stats ── */
+.stats {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: var(--ink);
+  color: var(--yellow);
+  font-family: 'Bangers', cursive;
+  letter-spacing: 2px;
+  font-size: 1rem;
+  border: var(--border);
+  box-shadow: var(--shadow);
+  display: inline-block;
+}
+
+/* ── Preview grid ── */
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+.preview-card {
+  position: relative;
+  border: var(--border);
+  box-shadow: var(--shadow);
+  background: white;
+  cursor: pointer;
+  aspect-ratio: 1;
+  overflow: hidden;
+  transition: transform 0.08s;
+}
+.preview-card:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
+.preview-card.selected {
+  outline: 4px solid var(--red);
+  outline-offset: -4px;
+}
+.preview-card canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+.preview-card .card-index {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-family: 'Bangers', cursive;
+  font-size: 0.8rem;
+  background: var(--ink);
+  color: var(--yellow);
+  padding: 1px 6px;
+  letter-spacing: 1px;
+}
+
+.match-bar {
+  margin-top: 18px;
+  padding: 12px 16px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  border: var(--border);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+.match-badge {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 2px;
+  padding: 4px 12px;
+  border: var(--border);
+}
+.match-badge.ok { background: var(--green); color: white; }
+.match-badge.bad { background: var(--red); color: white; }
+
 /* ── Print ── */
 @media print {
   *, *::before, *::after {
