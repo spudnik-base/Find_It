@@ -13,6 +13,14 @@
 
   const PRINT_CONTAINER_ID = 'findit-print-container';
 
+  // Print layout per symbols-per-card: 8-per-card gets physically larger
+  // cards (2x3 of 68mm) so each symbol stays legible. 4 and 6 keep the
+  // classic 3x3 of 55mm. All values in millimetres for A4 portrait.
+  function printLayoutForN(n) {
+    if (n >= 8) return { cardMM: 68, cols: 2, rows: 3, gutter: 6 };
+    return       { cardMM: 55, cols: 3, rows: 3, gutter: 5 };
+  }
+
   // ── lazy loader for jsPDF ──────────────────────────────────────────────
   // We only pull the ~100KB library when the user clicks the PDF download
   // button, so initial page load stays dependency-free.
@@ -71,20 +79,29 @@
     if (existing) existing.remove();
   }
 
-  function buildPrintGrid(dataURLs) {
+  function buildPrintGrid(dataURLs, symbolsPerCard) {
     clearPrintContainer();
+    const L = printLayoutForN(symbolsPerCard);
+    const perPage = L.cols * L.rows;
+
     const container = document.createElement('div');
     container.id = PRINT_CONTAINER_ID;
 
-    // Chunk into pages of 9.
-    for (let i = 0; i < dataURLs.length; i += 9) {
+    for (let i = 0; i < dataURLs.length; i += perPage) {
       const page = document.createElement('div');
       page.className = 'print-page';
       const grid = document.createElement('div');
       grid.className = 'print-grid';
-      for (let j = i; j < Math.min(i + 9, dataURLs.length); j++) {
+      // Inline styles override the @media print defaults so the grid
+      // adapts to the chosen n (e.g. 2x3 of 68mm for n=8).
+      grid.style.gridTemplateColumns = 'repeat(' + L.cols + ', ' + L.cardMM + 'mm)';
+      grid.style.gridAutoRows = L.cardMM + 'mm';
+      grid.style.gap = L.gutter + 'mm';
+      for (let j = i; j < Math.min(i + perPage, dataURLs.length); j++) {
         const wrap = document.createElement('div');
         wrap.className = 'print-card-wrap';
+        wrap.style.width = L.cardMM + 'mm';
+        wrap.style.height = L.cardMM + 'mm';
         const img = document.createElement('img');
         img.src = dataURLs[j];
         img.alt = 'card ' + (j + 1);
@@ -116,7 +133,7 @@
     const o = opts || {};
     const { deck, sizeVariance, symbolsPerCard } = await buildDeckForExport();
     const dataURLs = await renderAllCards(deck, sizeVariance, o.shape, symbolsPerCard);
-    const container = buildPrintGrid(dataURLs);
+    const container = buildPrintGrid(dataURLs, symbolsPerCard);
     await waitForImages(container);
     // Defer slightly so the browser has painted the grid before print.
     await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 50)));
@@ -126,9 +143,8 @@
   }
 
   // Instant PDF download via jsPDF (lazy-loaded). Lays the cards out on
-  // A4 portrait in the same 3x3 grid as the print path (55mm cards, 5mm
-  // gutter, 15mm top/bottom margin) and triggers a browser download with
-  // no print dialog.
+  // A4 portrait using printLayoutForN() so 8-per-card decks get physically
+  // larger cards and trigger a browser download with no print dialog.
   async function downloadPDF(opts) {
     const o = opts || {};
     const JsPDF = await ensureJsPDF();
@@ -137,13 +153,14 @@
 
     const doc = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
     const pageW = 210, pageH = 297;
-    const cardMM = 55;
-    const gutter = 5;
-    const cols = 3, rows = 3;
+    const layout = printLayoutForN(symbolsPerCard);
+    const cardMM = layout.cardMM;
+    const gutter = layout.gutter;
+    const cols = layout.cols, rows = layout.rows;
     const gridW = cols * cardMM + (cols - 1) * gutter;
     const gridH = rows * cardMM + (rows - 1) * gutter;
     const marginX = (pageW - gridW) / 2;
-    const marginY = 15;
+    const marginY = Math.max(15, (pageH - gridH) / 2);
     const cardsPerPage = cols * rows;
 
     for (let i = 0; i < dataURLs.length; i++) {
