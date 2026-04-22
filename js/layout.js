@@ -12,8 +12,8 @@
 (function () {
   'use strict';
 
-  const WORD_PADDING_X = 22;    // px horizontal padding (inside pill)
-  const WORD_PADDING_Y = 10;    // px vertical padding (inside pill)
+  const WORD_PADDING_X = 24;    // px horizontal padding (inside pill)
+  const WORD_PADDING_Y = 14;    // px vertical padding (inside pill)
   const WORD_PADDING = WORD_PADDING_Y;  // legacy alias (unused externally)
   const OBB_GAP = 5;            // px separation between symbols on the card
   const BORDER = 14;            // px inset from the card boundary
