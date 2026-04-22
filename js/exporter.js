@@ -13,6 +13,31 @@
 
   const PRINT_CONTAINER_ID = 'findit-print-container';
 
+  // ── lazy loader for jsPDF ──────────────────────────────────────────────
+  // We only pull the ~100KB library when the user clicks the PDF download
+  // button, so initial page load stays dependency-free.
+  const JSPDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  let jsPDFLoader = null;
+  function ensureJsPDF() {
+    if (jsPDFLoader) return jsPDFLoader;
+    jsPDFLoader = new Promise((resolve, reject) => {
+      if (window.jspdf && window.jspdf.jsPDF) {
+        resolve(window.jspdf.jsPDF);
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = JSPDF_URL;
+      s.async = true;
+      s.onload = () => {
+        if (window.jspdf && window.jspdf.jsPDF) resolve(window.jspdf.jsPDF);
+        else reject(new Error('jsPDF failed to initialise'));
+      };
+      s.onerror = () => reject(new Error('Failed to load jsPDF from ' + JSPDF_URL));
+      document.head.appendChild(s);
+    });
+    return jsPDFLoader;
+  }
+
   async function buildDeckForExport() {
     const content = FindIt.content.get();
     const deck = FindIt.deck.buildDeck(content.symbols, content.symbolsPerCard);
@@ -98,6 +123,52 @@
     window.print();
     setTimeout(clearPrintContainer, 2000);
     return { cards: deck.cards.length };
+  }
+
+  // Instant PDF download via jsPDF (lazy-loaded). Lays the cards out on
+  // A4 portrait in the same 3x3 grid as the print path (55mm cards, 5mm
+  // gutter, 15mm top/bottom margin) and triggers a browser download with
+  // no print dialog.
+  async function downloadPDF(opts) {
+    const o = opts || {};
+    const JsPDF = await ensureJsPDF();
+    const { deck, sizeVariance, symbolsPerCard } = await buildDeckForExport();
+    const dataURLs = await renderAllCards(deck, sizeVariance, o.shape, symbolsPerCard);
+
+    const doc = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+    const pageW = 210, pageH = 297;
+    const cardMM = 55;
+    const gutter = 5;
+    const cols = 3, rows = 3;
+    const gridW = cols * cardMM + (cols - 1) * gutter;
+    const gridH = rows * cardMM + (rows - 1) * gutter;
+    const marginX = (pageW - gridW) / 2;
+    const marginY = 15;
+    const cardsPerPage = cols * rows;
+
+    for (let i = 0; i < dataURLs.length; i++) {
+      const slot = i % cardsPerPage;
+      if (i > 0 && slot === 0) doc.addPage();
+      const col = slot % cols;
+      const row = Math.floor(slot / cols);
+      const x = marginX + col * (cardMM + gutter);
+      const y = marginY + row * (cardMM + gutter);
+      doc.addImage(dataURLs[i], 'PNG', x, y, cardMM, cardMM, undefined, 'FAST');
+
+      // Subtle corner cut guides (0.1mm grey) at each card's top-left and
+      // bottom-right so teachers can trim cleanly.
+      doc.setDrawColor(200);
+      doc.setLineWidth(0.1);
+      doc.line(x - 1, y, x + 2, y);
+      doc.line(x, y - 1, x, y + 2);
+      doc.line(x + cardMM + 1, y + cardMM, x + cardMM - 2, y + cardMM);
+      doc.line(x + cardMM, y + cardMM + 1, x + cardMM, y + cardMM - 2);
+    }
+
+    const raw = FindIt.content.get().setName || 'find-it';
+    const name = raw.replace(/[^a-z0-9-_]+/gi, '_').toLowerCase() || 'find-it';
+    doc.save(name + '.pdf');
+    return { cards: deck.cards.length, filename: name + '.pdf' };
   }
 
   async function downloadPNGSheet(opts) {
@@ -193,6 +264,7 @@
   window.FindIt = window.FindIt || {};
   window.FindIt.exporter = {
     printDeck,
+    downloadPDF,
     downloadPNGSheet,
     makeShareLink,
     loadShareLinkFromHash,

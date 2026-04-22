@@ -95,7 +95,10 @@
     ctx.rotate(item.rot);
     const w = item.hw * 2;
     const h = item.hh * 2;
-    const radius = h / 2;
+    // Rounded-rectangle corners. Not a full stadium; full stadiums had
+    // curved ends that chewed into the horizontal text room for short
+    // labels. Bounded by w/2 so paths are valid for very narrow pills.
+    const radius = Math.min(h * 0.4, w * 0.5);
 
     if (halo) {
       ctx.save();

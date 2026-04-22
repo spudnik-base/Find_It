@@ -114,6 +114,21 @@ body {
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
   transform: translate(-1px, -1px);
 }
+.btn-pdf[disabled] { opacity: 0.6; cursor: progress; }
+
+.btn-print {
+  background: var(--yellow);
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  font-size: 0.95rem;
+  padding: 6px 16px;
+}
+.btn-print:hover {
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  transform: translate(-1px, -1px);
+}
+.btn-print[disabled] { opacity: 0.6; cursor: progress; }
 
 .panel .btn-ghost {
   color: var(--ink);

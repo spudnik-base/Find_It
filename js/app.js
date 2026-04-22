@@ -771,12 +771,36 @@
     }
   }
 
+  async function runPdfDownload(setStatus, button) {
+    const s = C().get();
+    if (s.symbols.length === 0) {
+      setStatus('Add some symbols first.');
+      toast('Add some symbols before exporting.', 'warn');
+      return;
+    }
+    if (button) button.disabled = true;
+    setStatus('Building PDF…');
+    try {
+      const result = await FindIt.exporter.downloadPDF({ shape: state.cardShape });
+      setStatus('Downloaded ' + result.filename + ' (' + result.cards + ' cards).');
+      toast('PDF saved: ' + result.filename);
+    } catch (err) {
+      console.error(err);
+      setStatus('PDF failed: ' + err.message);
+      toast('PDF failed: ' + err.message, 'err');
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
   function initExport() {
     const statusEl = document.getElementById('exportStatus');
     const setStatus = (text) => { if (statusEl) statusEl.textContent = text || ''; };
 
-    const toolbarBtn = document.getElementById('toolbarPrintBtn');
-    if (toolbarBtn) toolbarBtn.addEventListener('click', () => runPrint(setStatus));
+    const printBtn = document.getElementById('toolbarPrintBtn');
+    if (printBtn) printBtn.addEventListener('click', () => runPrint(setStatus));
+    const pdfBtn = document.getElementById('toolbarPdfBtn');
+    if (pdfBtn) pdfBtn.addEventListener('click', () => runPdfDownload(setStatus, pdfBtn));
 
     document.getElementById('pngBtn').addEventListener('click', async () => {
       const s = C().get();

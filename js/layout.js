@@ -12,7 +12,9 @@
 (function () {
   'use strict';
 
-  const WORD_PADDING = 8;       // px padding around measured text box
+  const WORD_PADDING_X = 16;    // px horizontal padding (inside pill)
+  const WORD_PADDING_Y = 8;     // px vertical padding (inside pill)
+  const WORD_PADDING = WORD_PADDING_Y;  // legacy alias (unused externally)
   const OBB_GAP = 5;            // px separation between OBBs
   const BORDER = 14;            // px inset from the card boundary
   const MAX_ATTEMPTS = 500;
@@ -192,8 +194,8 @@
           size,
           ascent: maxAscent,
           descent: maxDescent,
-          hw: totalW / 2 + WORD_PADDING,
-          hh: (maxAscent + maxDescent) / 2 + WORD_PADDING,
+          hw: totalW / 2 + WORD_PADDING_X,
+          hh: (maxAscent + maxDescent) / 2 + WORD_PADDING_Y,
           richWidth: totalW,
         };
       }
@@ -212,8 +214,8 @@
         size,
         ascent,
         descent,
-        hw: textW / 2 + WORD_PADDING,
-        hh: textH / 2 + WORD_PADDING,
+        hw: textW / 2 + WORD_PADDING_X,
+        hh: textH / 2 + WORD_PADDING_Y,
       };
     });
     ctx.restore();
