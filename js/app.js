@@ -152,6 +152,158 @@
     lastSaveTick = Date.now();
   }
 
+  // ── mode toggle (Simple / Advanced) ────────────────────────────────────
+  function setMode(m) {
+    const mode = m === 'full' ? 'full' : 'simple';
+    state.mode = mode;
+    document.body.classList.toggle('mode-simple', mode === 'simple');
+    document.body.classList.toggle('mode-full', mode === 'full');
+    const btn = document.getElementById('modeToggle');
+    if (btn) btn.textContent = mode === 'simple' ? 'Advanced' : 'Simple';
+    saveSettings({ mode: mode });
+    // When flipping into Simple, render the preview if we have content.
+    if (mode === 'simple') scheduleHeroPreview();
+  }
+
+  function initMode() {
+    const saved = (loadSettings().mode === 'full') ? 'full' : 'simple';
+    setMode(saved);
+    const btn = document.getElementById('modeToggle');
+    if (btn) btn.addEventListener('click', () => {
+      setMode(state.mode === 'simple' ? 'full' : 'simple');
+    });
+  }
+
+  // ── hero quick-start ───────────────────────────────────────────────────
+  function initHero() {
+    const select = document.getElementById('heroPackSelect');
+    const pdfBtn = document.getElementById('heroPdfBtn');
+    const printBtn = document.getElementById('heroPrintBtn');
+    const toCustom = document.getElementById('heroToCustom');
+    if (!select || !pdfBtn || !printBtn) return;
+
+    // Populate pack options (mirrors the Advanced-mode dropdown).
+    const packs = (FindIt.packs && FindIt.packs.all) || [];
+    for (const p of packs) {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name + ' (' + p.symbols.length + ' symbols)';
+      select.appendChild(opt);
+    }
+
+    // Picking a pack auto-replaces the current set (Simple mode is
+    // single-pack: pick another to change your mind).
+    select.addEventListener('change', () => {
+      const id = select.value;
+      if (!id) return;
+      const pack = FindIt.packs.get(id);
+      if (!pack) return;
+      FindIt.packs.apply(pack);
+      const nameEl = document.getElementById('setName');
+      if (nameEl) nameEl.value = pack.name;
+      // Mirror the selection into the Advanced-mode picker.
+      const advSelect = document.getElementById('packSelect');
+      if (advSelect) advSelect.value = id;
+      toast('Loaded ' + pack.name + ': ' + pack.symbols.length + ' symbols.');
+    });
+
+    // Hero PDF/Print reuse the toolbar handlers via a tiny inline status.
+    const heroSetStatus = () => {}; // no status line in hero; rely on toasts.
+    pdfBtn.addEventListener('click', () => runPdfDownload(heroSetStatus, pdfBtn));
+    printBtn.addEventListener('click', () => runPrint(heroSetStatus));
+
+    // Hero size picker (same preset as Advanced-mode).
+    document.querySelectorAll('[data-hero-size]').forEach((b) => {
+      b.addEventListener('click', () => {
+        state.printSize = b.dataset.heroSize;
+        saveSettings({ printSize: state.printSize });
+        refreshHeroUI();
+        refreshConfigUI();
+      });
+    });
+
+    // Jump to Advanced mode when user wants to customise.
+    if (toCustom) toCustom.addEventListener('click', () => {
+      setMode('full');
+      // Scroll to the editor panel so they land somewhere sensible.
+      const el = document.getElementById('screen-editor');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    refreshHeroUI();
+  }
+
+  function refreshHeroUI() {
+    document.querySelectorAll('[data-hero-size]').forEach((b) => {
+      b.classList.toggle('active', b.dataset.heroSize === state.printSize);
+    });
+    const hint = document.getElementById('heroSizeHint');
+    if (hint && FindIt.exporter && FindIt.exporter.printLayout) {
+      const L = FindIt.exporter.printLayout(state.printSize);
+      hint.textContent = L.cols * L.rows + ' per A4 page · ' + L.cardMM + 'mm cards';
+    }
+    scheduleHeroPreview();
+  }
+
+  let heroPreviewTimer = null;
+  function scheduleHeroPreview() {
+    clearTimeout(heroPreviewTimer);
+    heroPreviewTimer = setTimeout(renderHeroPreview, 100);
+  }
+
+  async function renderHeroPreview() {
+    // Only render when the hero is visible (Simple mode) to avoid wasted work.
+    if (state.mode !== 'simple') return;
+    const wrap = document.getElementById('heroPreview');
+    const caption = document.getElementById('heroPreviewCaption');
+    if (!wrap) return;
+    const content = C().get();
+    if (!content.symbols.length) {
+      wrap.hidden = true;
+      return;
+    }
+    wrap.hidden = false;
+
+    const deck = FindIt.deck.buildDeck(content.symbols, content.symbolsPerCard);
+    // Pick two cards that share a real symbol (not a blank) if possible, so
+    // the 'every pair shares one' claim lands visually.
+    let a = 0, b = 1;
+    if (deck.blanksAdded > 0) {
+      outer:
+      for (let i = 0; i < deck.cards.length; i++) {
+        for (let j = i + 1; j < deck.cards.length; j++) {
+          const ids = new Set(deck.cards[i].map((s) => s.id));
+          const shared = deck.cards[j].find((s) => ids.has(s.id));
+          if (shared && !shared.isBlank) { a = i; b = j; break outer; }
+        }
+      }
+    }
+
+    const canvases = wrap.querySelectorAll('canvas');
+    if (canvases.length < 2) return;
+    await Promise.all([
+      FindIt.renderer.renderCard(canvases[0], deck.cards[a], {
+        size: 640, display: false,
+        tint: FindIt.renderer.pickTint(a),
+        shape: state.cardShape,
+        sizeVariance: content.sizeVariance,
+        symbolsPerCard: content.symbolsPerCard,
+      }),
+      FindIt.renderer.renderCard(canvases[1], deck.cards[b], {
+        size: 640, display: false,
+        tint: FindIt.renderer.pickTint(b),
+        shape: state.cardShape,
+        sizeVariance: content.sizeVariance,
+        symbolsPerCard: content.symbolsPerCard,
+      }),
+    ]);
+
+    if (caption) {
+      caption.textContent = (content.setName || 'Your deck') +
+        ' · ' + deck.cards.length + ' cards, ' + content.symbolsPerCard + ' symbols per card';
+    }
+  }
+
   // ── intro strip ────────────────────────────────────────────────────────
   function initIntro() {
     const el = document.getElementById('intro');
@@ -545,6 +697,7 @@
         state.printSize = btn.dataset.size;
         saveSettings({ printSize: state.printSize });
         refreshConfigUI();
+        refreshHeroUI();
       });
     });
 
@@ -619,6 +772,7 @@
   // ── screen 3: preview ──────────────────────────────────────────────────
   const PREVIEW_COUNT = 6;
   const state = {
+    mode: 'simple',
     cardShape: 'circle',
     printSize: 'standard',
     deck: null,
@@ -906,7 +1060,10 @@
     initConfigure();
     initPreview();
     initExport();
+    initHero();
+    initMode();
     refreshConfigUI();
+    refreshHeroUI();
     schedulePreviewRebuild();
     if (loadedFromHash) {
       toast('Loaded set from share link.');
@@ -918,6 +1075,7 @@
     // etc). Debounced to avoid hammering on rapid edits.
     C().onChange(() => {
       refreshConfigUI();
+      refreshHeroUI();
       schedulePreviewRebuild();
     });
   }

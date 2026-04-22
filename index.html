@@ -13,6 +13,7 @@
   <div class="toolbar">
     <div class="toolbar-logo">FIND IT <span>· card generator</span></div>
     <div class="toolbar-actions">
+      <button class="btn btn-mode" id="modeToggle" type="button" title="Switch between Simple and Advanced">Simple</button>
       <span class="save-status saved" id="saveStatus">&#10003; saved</span>
       <button class="btn btn-print" id="toolbarPrintBtn" type="button">&#9113; Print</button>
       <button class="btn btn-pdf" id="toolbarPdfBtn" type="button">&#8595; PDF</button>
@@ -21,6 +22,51 @@
   </div>
 
   <main class="container">
+    <!-- Hero: simple-mode quick-start. Hidden when Advanced mode is on. -->
+    <section class="hero" id="hero">
+      <div class="hero-tag">Ready in seconds</div>
+      <h1 class="hero-title">Pick a deck, hit PDF.</h1>
+      <p class="hero-sub">Or scroll down to build your own — add words, drop images, customise the cards.</p>
+
+      <div class="hero-pack">
+        <label for="heroPackSelect" class="hero-pack-label">Deck:</label>
+        <select id="heroPackSelect">
+          <option value="">(choose a starter pack…)</option>
+        </select>
+      </div>
+
+      <div class="hero-actions">
+        <button class="btn hero-pdf" id="heroPdfBtn" type="button">&#8595; Download PDF</button>
+        <button class="btn hero-print" id="heroPrintBtn" type="button">&#9113; Print</button>
+      </div>
+
+      <div class="hero-size">
+        <span class="hero-size-label">Size:</span>
+        <div class="segmented" role="radiogroup" aria-label="print size">
+          <button class="seg" data-hero-size="compact" type="button">compact</button>
+          <button class="seg" data-hero-size="standard" type="button">standard</button>
+          <button class="seg" data-hero-size="large" type="button">large</button>
+        </div>
+        <span class="hero-size-hint" id="heroSizeHint"></span>
+      </div>
+
+      <div class="hero-preview" id="heroPreview">
+        <div class="hero-preview-cards">
+          <canvas class="hero-preview-card" data-hero-card="0" width="640" height="640" aria-label="sample card"></canvas>
+          <div class="hero-preview-arrow" aria-hidden="true">
+            <span class="hero-preview-arrow-top">every pair shares</span>
+            <span class="hero-preview-arrow-line">&harr;</span>
+            <span class="hero-preview-arrow-bot">exactly one symbol</span>
+          </div>
+          <canvas class="hero-preview-card" data-hero-card="1" width="640" height="640" aria-label="sample card"></canvas>
+        </div>
+        <div class="hero-preview-footer">
+          <p class="hero-preview-caption" id="heroPreviewCaption"></p>
+          <button class="btn hero-advanced-btn" id="heroToCustom" type="button">Advanced &rarr;</button>
+        </div>
+      </div>
+    </section>
+
     <!-- Intro strip (dismissable) -->
     <section class="intro" id="intro">
       <div class="intro-content">
