@@ -1,4 +1,4 @@
-// packs.js — starter content packs.
+// packs.js: starter content packs.
 //
 // Packs are inlined so the app still works from file://.
 // A pack has the same shape as findit-content-v1 but is a constant.
@@ -360,7 +360,7 @@
 
   const IB_BIO_MOLECULES = {
     id: 'ib-bio-molecules',
-    name: 'IB Biology — Biological Molecules',
+    name: 'IB Biology: Biological Molecules',
     symbolsPerCard: 6,
     abbreviations: {
       'haemoglobin': 'Hb',
@@ -591,7 +591,7 @@
   //   ^n+^ -> superscript (Fe^2+^)
   const GCSE_CHEMISTRY = {
     id: 'gcse-chemistry',
-    name: 'GCSE Chemistry — Elements & Compounds',
+    name: 'GCSE Chemistry: Elements & Compounds',
     symbolsPerCard: 6,
     abbreviations: {},
     symbols: [

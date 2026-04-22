@@ -1,4 +1,4 @@
-// app.js — UI wiring + state orchestration.
+// app.js: UI wiring and state orchestration.
 (function () {
   'use strict';
   const C = () => window.FindIt.content;
@@ -55,7 +55,7 @@
   }
 
   function checkStorageUsage() {
-    // Rough check — warn at >80% of a conservative 5MB cap.
+    // Rough check: warn at >80% of a conservative 5MB cap.
     try {
       const used = FindIt.content.storageUsageBytes();
       const cap = 5 * 1024 * 1024;
@@ -120,7 +120,7 @@
       if (!confirm(msg)) return;
       const res = FindIt.packs.apply(pack);
       if (res.ok) {
-        toast('Loaded ' + pack.name + ' — ' + res.loaded + ' symbols.');
+        toast('Loaded ' + pack.name + ': ' + res.loaded + ' symbols.');
         document.getElementById('setName').value = pack.name;
       }
     });
@@ -150,7 +150,7 @@
       });
     });
 
-    // Word input — add on Enter, comma, or paste.
+    // Word input: add on Enter, comma, or paste.
     const wordInput = document.getElementById('wordInput');
     wordInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ',') {
@@ -349,8 +349,8 @@
     if (got === 0) msg = 'Add at least ' + n + ' symbols to start. ' + target + ' is the full set.';
     else if (got < n) msg = 'Need at least ' + n + ' symbols for a valid card. ' + (n - got) + ' more to go.';
     else if (got < target) msg = got + ' of ' + target + ' for a complete set (' + (target - got) + ' more). Blanks will pad the rest.';
-    else if (got === target) msg = got + ' of ' + target + ' — complete set.';
-    else msg = got + ' of ' + target + ' — first ' + target + ' used, ' + (got - target) + ' extra ignored.';
+    else if (got === target) msg = got + ' of ' + target + ': complete set.';
+    else msg = got + ' of ' + target + ': first ' + target + ' used, ' + (got - target) + ' extra ignored.';
     text.textContent = msg;
     text.className = 'counter-text' +
       (got < n ? ' warn' : got === target ? ' ok' : '');
@@ -542,7 +542,7 @@
     if (result && result.dropped && result.dropped.length) {
       console.warn(
         'layout: dropped ' + result.dropped.length + ' symbol(s) on card #' + (cardIdx + 1) +
-        ' — try reducing size variance or using shorter labels.'
+        '. Try reducing size variance or using shorter labels.'
       );
     }
   }
@@ -553,7 +553,7 @@
     const pieces = [];
     if (deck.blanksAdded > 0) {
       pieces.push(
-        deck.blanksAdded + ' blank placeholder(s) added — add ' + deck.blanksAdded + ' more symbols for a full set.'
+        deck.blanksAdded + ' blank placeholder(s) added. Add ' + deck.blanksAdded + ' more symbols for a full set.'
       );
     }
     if (deck.droppedSymbols.length > 0) {
@@ -569,7 +569,7 @@
       return;
     }
     bar.hidden = false;
-    bar.textContent = pieces.join('  —  ');
+    bar.textContent = pieces.join('. ');
   }
 
   function onPreviewClick(slot) {
@@ -589,7 +589,7 @@
       refreshSelectionUI();
       // On second click (below), we'll check match. If the user clicks the
       // same card twice, we treat the second as "clear". So we need another
-      // gesture for re-roll — shift-click or dblclick would work; for now,
+      // gesture for re-roll: shift-click or dblclick would work; for now,
       // a single click selects, and pressing the card again unselects. Re-
       // rolling happens via the "clear" button + configure change. Simpler.
       document.getElementById('matchBar').hidden = true;
@@ -640,7 +640,7 @@
     } else {
       badge.className = 'match-badge bad';
       badge.textContent = 'MISMATCH ✗';
-      text.textContent = 'No shared symbol — this should never happen; please report.';
+      text.textContent = 'No shared symbol. This should never happen; please report.';
     }
     bar.hidden = false;
   }
@@ -698,7 +698,7 @@
           await navigator.clipboard.writeText(url);
           setStatus(
             'Share link copied to clipboard' +
-              (omittedImages ? ' (images omitted — URLs have a size limit).' : '.')
+              (omittedImages ? ' (images omitted: URLs have a size limit).' : '.')
           );
         } catch {
           setStatus('Share link: ' + url);

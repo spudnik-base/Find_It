@@ -1,4 +1,4 @@
-// exporter.js — PDF export via window.print() and PNG-sheet download.
+// exporter.js: PDF export via window.print() and PNG-sheet download.
 //
 // Flow (brief Ch 7):
 //   1. Build the full deck (projective -> assign symbols -> layout each card).
@@ -81,7 +81,7 @@
           ? Promise.resolve()
           : new Promise((resolve) => {
               img.onload = resolve;
-              img.onerror = resolve; // fail open — still print
+              img.onerror = resolve; // fail open; still print
             })
       )
     );

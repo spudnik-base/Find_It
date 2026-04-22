@@ -1,4 +1,4 @@
-// renderer.js — Canvas 2D card renderer.
+// renderer.js: Canvas 2D card renderer.
 //
 // Canvas spec (brief Ch 6):
 //   internal resolution 640x640px, CSS display size 220x220px.

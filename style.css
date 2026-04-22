@@ -1,4 +1,4 @@
-/* FIND IT — global styles + print stylesheet.
+/* FIND IT: global styles + print stylesheet.
    Palette reused from docs/find_it.html for visual consistency. */
 
 :root {
@@ -322,7 +322,7 @@ body {
   border: 2px solid var(--ink);
 }
 .chipgrid:empty::before {
-  content: 'No symbols yet — add some above.';
+  content: 'No symbols yet. Add some above.';
   color: #888;
   font-style: italic;
   align-self: center;
@@ -618,7 +618,7 @@ input[type="range"] {
     display: block;
   }
 
-  /* Subtle cut guides — corner marks on each card. */
+  /* Subtle cut guides: corner marks on each card. */
   .print-card-wrap::before,
   .print-card-wrap::after {
     content: '';

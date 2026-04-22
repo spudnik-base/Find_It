@@ -1,8 +1,8 @@
-// layout.js — card layout engine.
+// layout.js: card layout engine.
 //
 // Three-pass placement as per brief Ch 4:
-//   1. measurePass — compute half-width/height for each symbol.
-//   2. placePass   — try up to 500 random positions per symbol,
+//   1. measurePass: compute half-width/height for each symbol.
+//   2. placePass:   try up to 500 random positions per symbol,
 //                    testing circle boundary and SAT overlap against
 //                    already-placed OBBs.
 //   3. (drawing is done by renderer.js)
