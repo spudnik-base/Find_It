@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ICHI — Claude Code Brief</title>
+<title>FIND IT — Claude Code Brief</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
@@ -320,7 +320,7 @@ body::before {
 <body>
 
 <div class="toolbar">
-  <div class="toolbar-logo">ICHI <span>— CLAUDE CODE BRIEF</span></div>
+  <div class="toolbar-logo">FIND IT <span>— CLAUDE CODE BRIEF</span></div>
   <div class="toolbar-actions">
     <span class="save-status saved" id="saveStatus">✓ saved</span>
     <button class="btn btn-edit" id="toggleEdit" onclick="toggleEdit()">✏ EDIT</button>
@@ -341,12 +341,12 @@ body::before {
 </div>
 
 <script>
-const DEFAULT_MD = `# ICHI
+const DEFAULT_MD = `# FIND IT
 ## Claude Code — Full Build Brief
 
 > One match. Every pair. Any subject. Build it.
 
-**Project:** ICHI — a browser-based educational card game generator for teachers.
+**Project:** FIND IT — a browser-based educational card game generator for teachers.
 The mechanic is a Dobble-style matching game: every pair of cards shares *exactly one* symbol.
 Teachers upload their own content (words, images) and get a print-ready PDF card set.
 
@@ -365,7 +365,7 @@ Teachers upload their own content (words, images) and get a print-ready PDF card
 ## Chapter 2: File Structure
 
 \`\`\`
-ichi/
+find-it/
 ├── index.html          # Single entry point — teacher tool UI
 ├── style.css           # Global styles + print stylesheet
 ├── js/
@@ -384,9 +384,9 @@ ichi/
 
 ## Chapter 3: Core Algorithm — Projective Plane
 
-> This is the heart of ICHI. Get this right first.
+> This is the heart of FIND IT. Get this right first.
 
-Every valid Dobble set is built from a **finite projective plane of order n-1**, where n = symbols per card.
+Every valid set is built from a **finite projective plane of order n-1**, where n = symbols per card.
 
 ### Valid orders (n = symbols per card)
 - n=4 → order 3 → 13 cards, 13 symbols
@@ -527,7 +527,7 @@ baseMin = 16px (words) or 20px (emoji/images). baseMax = baseMin × sizeVariance
 
 ### Data model
 \`\`\`js
-// Stored in localStorage under key 'ichi-content-v1'
+// Stored in localStorage under key 'findit-content-v1'
 {
   setName: "IB Biology — Biological Molecules",
   symbolsPerCard: 6,           // 4 | 6 | 8
@@ -666,9 +666,9 @@ This is OFF in print/export mode.
 
 \`\`\`js
 // Keys
-'ichi-content-v1'   // current set (JSON, see Chapter 5)
-'ichi-settings-v1'  // UI preferences (symbolsPerCard, sizeVariance, theme)
-'ichi-history-v1'   // array of saved sets { name, date, symbolCount }
+'findit-content-v1'   // current set (JSON, see Chapter 5)
+'findit-settings-v1'  // UI preferences (symbolsPerCard, sizeVariance, theme)
+'findit-history-v1'   // array of saved sets { name, date, symbolCount }
 
 // Max storage: ~5MB. Images stored as base64 can hit this fast.
 // Warn teacher if localStorage is >80% full.
@@ -700,7 +700,7 @@ This is OFF in print/export mode.
 5. **Accessibility mode** — high contrast, dyslexia-friendly font, larger minimum symbol size
 `;
 
-const STORAGE_KEY = 'ichi-brief-v1';
+const STORAGE_KEY = 'findit-brief-v1';
 
 function load() { return localStorage.getItem(STORAGE_KEY) || DEFAULT_MD; }
 function save(md) { localStorage.setItem(STORAGE_KEY, md); }
