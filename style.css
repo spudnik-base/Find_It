@@ -141,8 +141,8 @@ body {
   margin-bottom: 6px;
 }
 .intro-nudge {
-  font-family: 'Caveat', cursive;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--ink);
 }
 .intro-close {
