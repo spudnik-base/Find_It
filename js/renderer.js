@@ -60,27 +60,26 @@
     const tint = o.tint || TINTS[0];
     const shape = o.shape || 'circle';
     const pileColor = o.pileSide ? PILE_BORDER[o.pileSide] : null;
+    // Stroke sits centred on the path, so the circle needs to be inset by
+    // at least half the stroke width plus a pixel of safety. With the thick
+    // pile border we'd otherwise clip the outer half-stroke off the canvas
+    // edge and print a flat-sided ring.
+    const lineWidth = pileColor ? 16 : 6;
+    const inset = Math.ceil(lineWidth / 2) + 2;
     ctx.save();
     ctx.clearRect(0, 0, size, size);
     if (shape === 'rounded') {
       const radius = size * 0.14;
-      roundRect(ctx, 2, 2, size - 4, size - 4, radius);
+      roundRect(ctx, inset, inset, size - inset * 2, size - inset * 2, radius);
     } else {
       ctx.beginPath();
-      ctx.arc(r, r, r - 2, 0, Math.PI * 2);
+      ctx.arc(r, r, r - inset, 0, Math.PI * 2);
       ctx.closePath();
     }
     ctx.fillStyle = tint;
     ctx.fill();
-    if (pileColor) {
-      // Thicker coloured ring replaces the default black border so Q
-      // vs A cards are sortable at a glance after printing and cutting.
-      ctx.lineWidth = 16;
-      ctx.strokeStyle = pileColor;
-    } else {
-      ctx.lineWidth = 6;
-      ctx.strokeStyle = '#0d0d0d';
-    }
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = pileColor || '#0d0d0d';
     ctx.stroke();
     ctx.restore();
   }
