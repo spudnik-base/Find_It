@@ -523,6 +523,24 @@ body.mode-full .hero { display: none; }
 
 .tab-panel { padding-top: 4px; }
 
+/* Q/A Pairs input: two textareas side by side so row N of Questions
+   pairs with row N of Answers. Collapses to a single column on narrow
+   viewports. */
+.pair-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.pair-input-grid textarea {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+@media (max-width: 600px) {
+  .pair-input-grid { grid-template-columns: 1fr; }
+}
+
 /* ── Dropzone ── */
 .dropzone {
   border: 3px dashed var(--ink);
@@ -535,6 +553,17 @@ body.mode-full .hero { display: none; }
 .dropzone.over { background: var(--yellow); }
 .dropzone p { margin: 4px 0; font-size: 0.95rem; }
 .link { text-decoration: underline; cursor: pointer; font-weight: 700; }
+button.link {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  font-weight: 700;
+  cursor: pointer;
+}
+button.link:hover { color: var(--red); }
 
 /* ── Chip grid ── */
 .chipgrid-wrap { margin-top: 24px; }

@@ -102,6 +102,7 @@
       <div class="input-tabs" role="tablist">
         <button class="tab active" data-tab="words" type="button">Words</button>
         <button class="tab" data-tab="csv" type="button">CSV</button>
+        <button class="tab" data-tab="pairs" type="button">Q&amp;A Pairs</button>
         <button class="tab" data-tab="images" type="button">Images</button>
       </div>
 
@@ -122,6 +123,31 @@
           <button class="btn btn-primary" id="csvImportBtn" type="button">Import CSV</button>
           <label class="btn btn-ghost" for="csvFile">… or upload .csv</label>
           <input id="csvFile" type="file" accept=".csv,text/csv,text/plain" hidden>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-panel="pairs" hidden>
+        <p class="hint">
+          Enter questions on the left and their answers on the right — row
+          N pairs with row N. When <b>every</b> symbol in the set is a
+          Q&amp;A pair, the deck prints as two piles (red Questions,
+          blue Answers) so every match is Q↔A.
+          <button class="link" id="pairInfoBtn" type="button">What's Q/A mode?</button>
+        </p>
+        <div class="pair-input-grid">
+          <label class="field">
+            <span class="field-label">Questions</span>
+            <textarea id="pairQInput" rows="8" placeholder="3 × 4&#10;5 + 2&#10;half of 10"></textarea>
+          </label>
+          <label class="field">
+            <span class="field-label">Answers</span>
+            <textarea id="pairAInput" rows="8" placeholder="12&#10;7&#10;5"></textarea>
+          </label>
+        </div>
+        <div class="row">
+          <button class="btn btn-primary" id="pairImportBtn" type="button">Import pairs</button>
+          <button class="btn btn-ghost" id="pairClearBtn" type="button">Clear fields</button>
+          <span class="hint" id="pairImportHint"></span>
         </div>
       </div>
 

@@ -4,6 +4,81 @@
   const C = () => window.FindIt.content;
   const SETTINGS_KEY = 'findit-settings-v1';
 
+  // Plain informational modal: single "Got it" button, no decision.
+  // Accepts a title and an HTML body (caller is responsible for escaping
+  // untrusted text before passing it in).
+  function infoDialog(opts) {
+    const o = opts || {};
+    return new Promise((resolve) => {
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop';
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.dataset.tag = o.tag || 'INFO';
+      const h = document.createElement('h3');
+      h.textContent = o.title || 'Heads up';
+      modal.appendChild(h);
+      const body = document.createElement('div');
+      body.className = 'modal-body';
+      body.innerHTML = o.bodyHTML || '';
+      modal.appendChild(body);
+      const actions = document.createElement('div');
+      actions.className = 'modal-actions';
+      const okBtn = document.createElement('button');
+      okBtn.type = 'button';
+      okBtn.className = 'btn btn-primary';
+      okBtn.textContent = o.okText || 'Got it';
+      actions.appendChild(okBtn);
+      modal.appendChild(actions);
+      backdrop.appendChild(modal);
+      document.body.appendChild(backdrop);
+      let settled = false;
+      const close = () => {
+        if (settled) return;
+        settled = true;
+        document.removeEventListener('keydown', onKey);
+        backdrop.remove();
+        resolve();
+      };
+      const onKey = (e) => {
+        if (e.key === 'Escape' || e.key === 'Enter') { e.preventDefault(); close(); }
+      };
+      okBtn.addEventListener('click', close);
+      backdrop.addEventListener('click', (e) => { if (e.target === backdrop) close(); });
+      document.addEventListener('keydown', onKey);
+      setTimeout(() => okBtn.focus(), 30);
+    });
+  }
+
+  const QA_MODE_EXPLAINER = {
+    title: 'Q/A Two-Pile Mode',
+    bodyHTML: [
+      '<p>This deck is a <b>matching game where every question pairs with its answer</b>. ',
+      'It prints as <b>two piles</b> — Questions (red border) and Answers (blue border) — ',
+      'so every match is guaranteed to be Q↔A.</p>',
+      '<h4 style="font-family:Bangers,cursive;letter-spacing:1.5px;margin:14px 0 6px;">How to play</h4>',
+      '<ol style="margin:0 0 14px 20px;line-height:1.55;">',
+      '<li>After printing, separate the two piles by their coloured border.</li>',
+      '<li>Shuffle each pile on its own.</li>',
+      '<li>Flip one card from each pile. Race to find the shared symbol: ',
+      'it appears as the <b>question</b> on one card and as the <b>answer</b> on the other ',
+      '(e.g. <code>3 × 4</code> on the Q card, <code>12</code> on the A card).</li>',
+      '</ol>',
+      '<h4 style="font-family:Bangers,cursive;letter-spacing:1.5px;margin:14px 0 6px;">Why two piles?</h4>',
+      '<p style="margin-bottom:14px;">A single Dobble deck can share a symbol rendered identically on both cards ',
+      '(e.g. both show <code>12</code>). Printing the same deck twice — once as questions, once ',
+      'as answers — guarantees every match is an arithmetic Q↔A.</p>',
+      '<h4 style="font-family:Bangers,cursive;letter-spacing:1.5px;margin:14px 0 6px;">Build your own</h4>',
+      '<p style="margin-bottom:0;">Switch to <b>Advanced</b> mode, open the <b>Q&amp;A Pairs</b> tab in ',
+      'the Content editor, and type questions on the left with their answers on the right. ',
+      'When every symbol in your set is a pair, the deck automatically switches to two-pile mode.</p>',
+    ].join(''),
+  };
+
+  function openQAExplainer() { return infoDialog(QA_MODE_EXPLAINER); }
+
   // ── branded confirm dialog ─────────────────────────────────────────────
   // Drop-in replacement for window.confirm() that matches the manga palette.
   // Returns a Promise<boolean>.
@@ -264,7 +339,13 @@
     }
     wrap.hidden = false;
 
-    const deck = FindIt.deck.buildDeck(content.symbols, content.symbolsPerCard);
+    let deck;
+    try {
+      deck = FindIt.deck.buildDeck(content.symbols, content.symbolsPerCard);
+    } catch {
+      wrap.hidden = true;
+      return;
+    }
     // Pick two cards that share a real symbol (not a blank) if possible, so
     // the 'every pair shares one' claim lands visually.
     let a = 0, b = 1;
@@ -279,6 +360,8 @@
       }
     }
 
+    const twoPile = FindIt.deck.isTwoPileMode(content.symbols);
+
     const canvases = wrap.querySelectorAll('canvas');
     if (canvases.length < 2) return;
     await Promise.all([
@@ -288,6 +371,7 @@
         shape: state.cardShape,
         sizeVariance: content.sizeVariance,
         symbolsPerCard: content.symbolsPerCard,
+        pileSide: twoPile ? 'Q' : null,
       }),
       FindIt.renderer.renderCard(canvases[1], deck.cards[b], {
         size: 640, display: false,
@@ -295,12 +379,15 @@
         shape: state.cardShape,
         sizeVariance: content.sizeVariance,
         symbolsPerCard: content.symbolsPerCard,
+        pileSide: twoPile ? 'A' : null,
       }),
     ]);
 
     if (caption) {
-      caption.textContent = (content.setName || 'Your deck') +
-        ' · ' + deck.cards.length + ' cards, ' + content.symbolsPerCard + ' symbols per card';
+      const countPart = twoPile
+        ? deck.cards.length + ' cards per pile · ' + (deck.cards.length * 2) + ' total (Q/A)'
+        : deck.cards.length + ' cards, ' + content.symbolsPerCard + ' symbols per card';
+      caption.textContent = (content.setName || 'Your deck') + ' · ' + countPart;
     }
   }
 
@@ -443,6 +530,48 @@
       e.target.value = '';
     });
 
+    // Q&A Pairs: two parallel textareas, row N of Questions pairs with
+    // row N of Answers. Skips blank-or-unbalanced rows silently and
+    // reports the count.
+    const pairQInput = document.getElementById('pairQInput');
+    const pairAInput = document.getElementById('pairAInput');
+    const pairImportBtn = document.getElementById('pairImportBtn');
+    const pairClearBtn = document.getElementById('pairClearBtn');
+    const pairImportHint = document.getElementById('pairImportHint');
+    const pairInfoBtn = document.getElementById('pairInfoBtn');
+    if (pairImportBtn) {
+      pairImportBtn.addEventListener('click', () => {
+        const qs = (pairQInput.value || '').split(/\r?\n/);
+        const as = (pairAInput.value || '').split(/\r?\n/);
+        const rows = Math.max(qs.length, as.length);
+        let added = 0, skipped = 0;
+        markSaving();
+        for (let i = 0; i < rows; i++) {
+          const q = (qs[i] || '').trim();
+          const a = (as[i] || '').trim();
+          if (!q && !a) continue;
+          if (!q || !a) { skipped++; continue; }
+          if (content.addPair(q, a)) added++;
+        }
+        pairQInput.value = '';
+        pairAInput.value = '';
+        const msg = '+' + added + ' pair(s) imported' +
+          (skipped ? ' · ' + skipped + ' row(s) skipped (needs both Q and A)' : '');
+        if (pairImportHint) pairImportHint.textContent = msg;
+        flashStatus(msg);
+      });
+    }
+    if (pairClearBtn) {
+      pairClearBtn.addEventListener('click', () => {
+        pairQInput.value = '';
+        pairAInput.value = '';
+        if (pairImportHint) pairImportHint.textContent = '';
+      });
+    }
+    if (pairInfoBtn) {
+      pairInfoBtn.addEventListener('click', openQAExplainer);
+    }
+
     // Image drop zone.
     const drop = document.getElementById('imageDrop');
     const imageFile = document.getElementById('imageFile');
@@ -569,6 +698,19 @@
         label.className = 'chip-value';
         label.textContent = sym.display || 'image';
         chip.appendChild(label);
+      } else if (sym.type === 'pair') {
+        const q = document.createElement('span');
+        q.className = 'chip-value';
+        q.innerHTML = FindIt.layout.richToHTML(sym.value);
+        chip.appendChild(q);
+        const eq = document.createElement('span');
+        eq.className = 'chip-display';
+        eq.textContent = '=';
+        chip.appendChild(eq);
+        const a = document.createElement('span');
+        a.className = 'chip-value';
+        a.innerHTML = FindIt.layout.richToHTML(sym.pairValue);
+        chip.appendChild(a);
       } else {
         const label = document.createElement('span');
         label.className = 'chip-value';
@@ -779,6 +921,7 @@
     previewIndices: [],
     selected: [],
     rebuildTimer: null,
+    twoPile: false,
   };
 
   function initPreview() {
@@ -808,11 +951,36 @@
     const grid = document.getElementById('previewGrid');
     if (!grid) return;
 
-    const deck = FindIt.deck.buildDeck(s.symbols, s.symbolsPerCard);
+    let deck;
+    try {
+      deck = FindIt.deck.buildDeck(s.symbols, s.symbolsPerCard);
+    } catch (err) {
+      state.deck = null;
+      state.twoPile = false;
+      state.previewIndices = [];
+      state.selected = [];
+      grid.innerHTML = '';
+      renderDropsBar({ blanksAdded: 0, droppedSymbols: [] }, err.message);
+      return;
+    }
     state.deck = deck;
     state.previewIndices = pickPreviewIndices(deck.cards.length);
     state.selected = [];
-    renderDropsBar(deck);
+    state.twoPile = FindIt.deck.isTwoPileMode(s.symbols);
+
+    const hasPair = s.symbols.some((x) => x && x.type === 'pair');
+    const hasNonPair = s.symbols.some((x) => x && x.type !== 'pair' && !x.isBlank);
+    let note = null;
+    if (state.twoPile) {
+      note = deck.cards.length + ' cards per pile · ' +
+        (deck.cards.length * 2) + ' total · Q/A two-pile mode';
+    } else if (hasPair && hasNonPair) {
+      note = 'Q/A two-pile mode is off: your set mixes Q&A pairs with plain ' +
+        'symbols. Plain symbols would render identically on both piles, so ' +
+        'not every match would be Q↔A. Remove the plain entries (or the ' +
+        'pairs) to re-enable two-pile mode.';
+    }
+    renderDropsBar(deck, note);
 
     grid.innerHTML = '';
     const frag = document.createDocumentFragment();
@@ -852,6 +1020,7 @@
       sizeVariance: content.sizeVariance,
       symbolsPerCard: content.symbolsPerCard,
       highlightId: o.highlightId,
+      pileSide: state.twoPile ? 'Q' : null,
     });
     if (result && result.dropped && result.dropped.length) {
       console.warn(
@@ -861,10 +1030,14 @@
     }
   }
 
-  function renderDropsBar(deck) {
+  function renderDropsBar(deck, note) {
     const bar = document.getElementById('dropsBar');
     if (!bar) return;
     const pieces = [];
+    if (note) pieces.push(note);
+    if (state.twoPile) {
+      pieces.push('__QA_INFO_LINK__');
+    }
     if (deck.blanksAdded > 0) {
       pieces.push(
         deck.blanksAdded + ' blank placeholder(s) added. Add ' + deck.blanksAdded + ' more symbols for a full set.'
@@ -883,7 +1056,22 @@
       return;
     }
     bar.hidden = false;
-    bar.textContent = pieces.join('. ');
+    // Build the bar with a real button for the Q/A explainer so users
+    // can open the modal inline. Other pieces stay plain text.
+    bar.innerHTML = '';
+    pieces.forEach((piece, i) => {
+      if (i > 0) bar.appendChild(document.createTextNode('. '));
+      if (piece === '__QA_INFO_LINK__') {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'link';
+        btn.textContent = "What's Q/A mode?";
+        btn.addEventListener('click', openQAExplainer);
+        bar.appendChild(btn);
+      } else {
+        bar.appendChild(document.createTextNode(piece));
+      }
+    });
   }
 
   function onPreviewClick(slot) {
@@ -946,6 +1134,10 @@
       badge.textContent = 'MATCH ✓';
       if (shared.isBlank) {
         text.textContent = '(shared blank placeholder)';
+      } else if (shared.type === 'pair') {
+        text.innerHTML = 'shared: ' +
+          FindIt.layout.richToHTML(shared.value) + ' = ' +
+          FindIt.layout.richToHTML(shared.pairValue);
       } else {
         text.innerHTML = 'shared: ' +
           FindIt.layout.richToHTML(shared.display || shared.value || 'image');
@@ -977,7 +1169,8 @@
     setStatus('Building deck…');
     try {
       const result = await FindIt.exporter.printDeck({ shape: state.cardShape, size: state.printSize });
-      setStatus('Opened print dialog for ' + result.cards + ' cards.');
+      const pileNote = result.twoPile ? ' (Q + A piles)' : '';
+      setStatus('Opened print dialog for ' + result.cards + ' cards' + pileNote + '.');
     } catch (err) {
       console.error(err);
       setStatus('Print failed: ' + err.message);
@@ -996,8 +1189,9 @@
     setStatus('Building PDF…');
     try {
       const result = await FindIt.exporter.downloadPDF({ shape: state.cardShape, size: state.printSize });
-      setStatus('Downloaded ' + result.filename + ' (' + result.cards + ' cards).');
-      toast('PDF saved: ' + result.filename);
+      const pileNote = result.twoPile ? ' · Q + A piles' : '';
+      setStatus('Downloaded ' + result.filename + ' (' + result.cards + ' cards' + pileNote + ').');
+      toast('PDF saved: ' + result.filename + (result.twoPile ? ' (Q + A)' : ''));
     } catch (err) {
       console.error(err);
       setStatus('PDF failed: ' + err.message);

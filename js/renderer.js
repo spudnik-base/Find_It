@@ -48,26 +48,38 @@
     return canvas.getContext('2d');
   }
 
+  // Pile border colours for Q/A two-pile decks. Red on the Question
+  // pile, blue on the Answer pile — strong contrast against the pastel
+  // tints and visible once a stack is cut and mixed on a table.
+  const PILE_BORDER = { Q: '#e8291c', A: '#1b73d9' };
+
   function drawCardBackground(ctx, opts) {
     const o = opts || {};
     const size = o.size || CANVAS_SIZE;
     const r = size / 2;
     const tint = o.tint || TINTS[0];
     const shape = o.shape || 'circle';
+    const pileColor = o.pileSide ? PILE_BORDER[o.pileSide] : null;
+    // Stroke sits centred on the path, so the circle needs to be inset by
+    // at least half the stroke width plus a pixel of safety. With the thick
+    // pile border we'd otherwise clip the outer half-stroke off the canvas
+    // edge and print a flat-sided ring.
+    const lineWidth = pileColor ? 16 : 6;
+    const inset = Math.ceil(lineWidth / 2) + 2;
     ctx.save();
     ctx.clearRect(0, 0, size, size);
     if (shape === 'rounded') {
       const radius = size * 0.14;
-      roundRect(ctx, 2, 2, size - 4, size - 4, radius);
+      roundRect(ctx, inset, inset, size - inset * 2, size - inset * 2, radius);
     } else {
       ctx.beginPath();
-      ctx.arc(r, r, r - 2, 0, Math.PI * 2);
+      ctx.arc(r, r, r - inset, 0, Math.PI * 2);
       ctx.closePath();
     }
     ctx.fillStyle = tint;
     ctx.fill();
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = '#0d0d0d';
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = pileColor || '#0d0d0d';
     ctx.stroke();
     ctx.restore();
   }
@@ -244,11 +256,21 @@
   async function renderCard(canvas, cardSymbols, opts) {
     const o = opts || {};
     const ctx = setupCanvas(canvas, o);
-    drawCardBackground(ctx, { size: canvas.width, tint: o.tint, shape: o.shape });
+    drawCardBackground(ctx, {
+      size: canvas.width,
+      tint: o.tint,
+      shape: o.shape,
+      pileSide: o.pileSide || null,
+    });
 
     // Every symbol on a Dobble card is the pair-mate with some other card,
     // so silently dropping one breaks the "every pair shares exactly one"
     // invariant for all n cards that share it. Shrink until everything fits.
+    //
+    // In Q/A pile mode the drawn card border is 16px instead of 6px, which
+    // pushes its inner edge 5 extra pixels inward. Pad the layout's usable
+    // disc by that much so pills can't end up under the coloured ring.
+    const placeBorder = o.pileSide ? 24 : 14;
     const SHRINK_STEPS = [1.0, 0.85, 0.72, 0.6, 0.5, 0.42];
     let placed, dropped;
     for (const scale of SHRINK_STEPS) {
@@ -256,10 +278,12 @@
         sizeVariance: o.sizeVariance,
         symbolsPerCard: o.symbolsPerCard,
         scale,
+        pairSide: o.pileSide || null,
       });
       const result = FindIt.layout.placePass(measured, canvas.width / 2, {
         cx: canvas.width / 2,
         cy: canvas.height / 2,
+        border: placeBorder,
       });
       placed = result.placed;
       dropped = result.dropped;
@@ -294,6 +318,7 @@
     CANVAS_SIZE,
     DISPLAY_SIZE,
     TINTS,
+    PILE_BORDER,
     imageCache,
     loadImage,
     setupCanvas,

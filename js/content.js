@@ -6,7 +6,8 @@
 //   symbolsPerCard: 4|6|8,
 //   sizeVariance: number,       // 1.0 .. 3.0
 //   abbreviations: { [term]: short },
-//   symbols: [{ id, type: 'word'|'image', value, display }]
+//   symbols: [{ id, type: 'word'|'image'|'pair', value, display,
+//              pairValue?, pairDisplay? }]
 // }
 
 (function () {
@@ -116,16 +117,25 @@
     return chars.length <= limit ? String(word) : chars.slice(0, limit).join('') + '.';
   }
 
+  function deriveWordDisplay(text) {
+    const key = String(text).trim().toLowerCase();
+    if (state.abbreviations[key]) return state.abbreviations[key];
+    return capDisplay(text, MAX_DISPLAY_CHARS);
+  }
+
   function deriveDisplay(sym) {
     if (sym.type === 'image') return null;
-    const key = String(sym.value).trim().toLowerCase();
-    if (state.abbreviations[key]) return state.abbreviations[key];
-    return capDisplay(sym.value, MAX_DISPLAY_CHARS);
+    return deriveWordDisplay(sym.value);
   }
 
   function refreshDisplays() {
     for (const sym of state.symbols) {
-      sym.display = deriveDisplay(sym);
+      if (sym.type === 'pair') {
+        sym.display = deriveWordDisplay(sym.value);
+        sym.pairDisplay = deriveWordDisplay(sym.pairValue);
+      } else {
+        sym.display = deriveDisplay(sym);
+      }
     }
   }
 
@@ -153,6 +163,39 @@
       state.abbreviations[raw.toLowerCase()] = String(opts.abbreviation).slice(0, MAX_DISPLAY_CHARS);
     }
     sym.display = deriveDisplay(sym);
+    state.symbols.push(sym);
+    scheduleSave();
+    emit();
+    return sym;
+  }
+
+  // Paired Q/A symbol: `value` is the question side (e.g. "3 × 4"),
+  // `pairValue` is the answer side ("12"). Identity (id) is shared across
+  // both renderings; the exporter draws the deck twice, once per side, so
+  // that every question card has a matching answer card in the same export.
+  function addPair(question, answer, opts) {
+    const q = String(question == null ? '' : question).trim();
+    const a = String(answer == null ? '' : answer).trim();
+    if (!q || !a) return null;
+    const exists = state.symbols.find(
+      (s) => s.type === 'pair' &&
+        s.value.toLowerCase() === q.toLowerCase() &&
+        s.pairValue.toLowerCase() === a.toLowerCase()
+    );
+    if (exists) return exists;
+    const sym = {
+      id: nextId(),
+      type: 'pair',
+      value: q,
+      pairValue: a,
+      display: null,
+      pairDisplay: null,
+    };
+    if (opts && opts.abbreviation) {
+      state.abbreviations[q.toLowerCase()] = String(opts.abbreviation).slice(0, MAX_DISPLAY_CHARS);
+    }
+    sym.display = deriveWordDisplay(q);
+    sym.pairDisplay = deriveWordDisplay(a);
     state.symbols.push(sym);
     scheduleSave();
     emit();
@@ -274,6 +317,7 @@
     setAbbreviation,
     capDisplay,
     addWord,
+    addPair,
     addImage,
     removeSymbol,
     clearSymbols,

@@ -1105,6 +1105,56 @@
     })(),
   };
 
+  // ─── Times Tables Q&A (two-pile) ───────────────────────────────────────
+  // 31 Q/A pair symbols: question side shows the expression, answer side
+  // shows the product. The exporter emits two piles (62 printed cards)
+  // with a red Q border and a blue A border so every match is Q↔A.
+  const TIMES_TABLES_QA = {
+    id: 'times-tables-qa',
+    name: 'Times Tables Q&A (2×, 5×, 10×)',
+    symbolsPerCard: 6,
+    abbreviations: {},
+    symbols: (function () {
+      const out = [];
+      const push = (a, b) => out.push({
+        type: 'pair',
+        value: a + ' × ' + b,
+        pairValue: String(a * b),
+      });
+      for (let k = 1; k <= 11; k++) push(2, k);
+      for (let k = 1; k <= 10; k++) push(5, k);
+      for (let k = 1; k <= 10; k++) push(10, k);
+      return out;
+    })(),
+  };
+
+  // ─── Simple Addition Q&A (two-pile) ────────────────────────────────────
+  // 31 pair symbols spanning sums 2..12 with single-digit operands, so the
+  // answer pile shows small numbers distinct enough to read at 55mm.
+  const ADDITION_QA = {
+    id: 'addition-qa',
+    name: 'Simple Addition Q&A',
+    symbolsPerCard: 6,
+    abbreviations: {},
+    symbols: (function () {
+      const out = [];
+      const TARGET = 31;
+      for (let s = 2; s <= 18 && out.length < TARGET; s++) {
+        for (let a = 1; a <= Math.floor(s / 2) && out.length < TARGET; a++) {
+          const b = s - a;
+          if (b <= 9) {
+            out.push({
+              type: 'pair',
+              value: a + ' + ' + b,
+              pairValue: String(s),
+            });
+          }
+        }
+      }
+      return out;
+    })(),
+  };
+
   // ─── Shapes & Numbers (KS1 Numeracy) ───────────────────────────────────
   // 10 shape icons + 10 digits + 5 operators + 6 concept words = 31.
   const SHAPES_NUMBERS = {
@@ -1287,6 +1337,8 @@
     KS1_PHONICS,
     KS2_VOCAB,
     TIMES_TABLES,
+    TIMES_TABLES_QA,
+    ADDITION_QA,
   ];
 
   function get(id) {
@@ -1314,6 +1366,7 @@
     }
     for (const s of pack.symbols) {
       if (s.type === 'image') c.addImage(s.value, { label: s.display });
+      else if (s.type === 'pair') c.addPair(s.value, s.pairValue);
       else c.addWord(s.value);
     }
 

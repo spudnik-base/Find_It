@@ -148,11 +148,25 @@
     const scale = o.scale == null ? 1 : o.scale;
     const wordBase = (o.wordBase || defaults.wordBase) * scale;
     const imageBase = (o.imageBase || defaults.imageBase) * scale;
+    // For pair symbols, which side to render on this card. The exporter
+    // passes 'Q' for the question pile and 'A' for the answer pile; the
+    // on-screen preview uses 'Q' by default. Non-pair symbols ignore it.
+    const pairSide = o.pairSide === 'A' ? 'A' : 'Q';
 
     ctx.save();
     ctx.font = wordFont;
 
-    const measured = symbols.map((sym) => {
+    const measured = symbols.map((rawSym) => {
+      // Pair symbols are flattened to their rendered side here so the rest
+      // of the pipeline (drawing, size-shrink retry) stays agnostic.
+      const sym = rawSym && rawSym.type === 'pair'
+        ? {
+            id: rawSym.id,
+            type: 'word',
+            value: pairSide === 'A' ? rawSym.pairValue : rawSym.value,
+            display: pairSide === 'A' ? rawSym.pairDisplay : rawSym.display,
+          }
+        : rawSym;
       if (sym.isBlank) {
         // Placeholder for "this pack has fewer symbols than the plane
         // needs". Render a modest circle so it's visible but obviously
