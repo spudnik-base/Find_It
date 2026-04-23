@@ -18,7 +18,26 @@
   //     usedSymbols: number,
   //     droppedSymbols: symbolObj[],
   //     blanksAdded: number }
+  // Throws a descriptive error on malformed pair symbols so the export
+  // fails loudly instead of shipping a half-broken PDF.
+  function validatePairs(symbols) {
+    for (const s of symbols) {
+      if (s && s.type === 'pair' && !String(s.pairValue || '').trim()) {
+        throw new Error("Pair symbol missing answer: '" + (s.value || '?') + "'");
+      }
+    }
+  }
+
+  // A deck qualifies for Q/A two-pile mode iff every usable (non-blank)
+  // symbol is a pair. Mixed content renders as a normal single pile.
+  function isTwoPileMode(symbols) {
+    const pool = (symbols || []).filter((s) => s && !s.isBlank);
+    if (pool.length === 0) return false;
+    return pool.every((s) => s.type === 'pair');
+  }
+
   function buildDeck(symbols, symbolsPerCard) {
+    validatePairs(symbols);
     const n = symbolsPerCard;
     const shape = FindIt.setShape(n);
     const q = shape.order;
@@ -51,5 +70,5 @@
   }
 
   window.FindIt = window.FindIt || {};
-  window.FindIt.deck = { buildDeck, findSharedSymbol, blankSymbol };
+  window.FindIt.deck = { buildDeck, findSharedSymbol, blankSymbol, isTwoPileMode, validatePairs };
 })();

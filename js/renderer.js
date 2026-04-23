@@ -48,12 +48,18 @@
     return canvas.getContext('2d');
   }
 
+  // Pile border colours for Q/A two-pile decks. Red on the Question
+  // pile, blue on the Answer pile — strong contrast against the pastel
+  // tints and visible once a stack is cut and mixed on a table.
+  const PILE_BORDER = { Q: '#e8291c', A: '#1b73d9' };
+
   function drawCardBackground(ctx, opts) {
     const o = opts || {};
     const size = o.size || CANVAS_SIZE;
     const r = size / 2;
     const tint = o.tint || TINTS[0];
     const shape = o.shape || 'circle';
+    const pileColor = o.pileSide ? PILE_BORDER[o.pileSide] : null;
     ctx.save();
     ctx.clearRect(0, 0, size, size);
     if (shape === 'rounded') {
@@ -66,8 +72,15 @@
     }
     ctx.fillStyle = tint;
     ctx.fill();
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = '#0d0d0d';
+    if (pileColor) {
+      // Thicker coloured ring replaces the default black border so Q
+      // vs A cards are sortable at a glance after printing and cutting.
+      ctx.lineWidth = 16;
+      ctx.strokeStyle = pileColor;
+    } else {
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = '#0d0d0d';
+    }
     ctx.stroke();
     ctx.restore();
   }
@@ -244,7 +257,12 @@
   async function renderCard(canvas, cardSymbols, opts) {
     const o = opts || {};
     const ctx = setupCanvas(canvas, o);
-    drawCardBackground(ctx, { size: canvas.width, tint: o.tint, shape: o.shape });
+    drawCardBackground(ctx, {
+      size: canvas.width,
+      tint: o.tint,
+      shape: o.shape,
+      pileSide: o.pileSide || null,
+    });
 
     // Every symbol on a Dobble card is the pair-mate with some other card,
     // so silently dropping one breaks the "every pair shares exactly one"
@@ -256,6 +274,7 @@
         sizeVariance: o.sizeVariance,
         symbolsPerCard: o.symbolsPerCard,
         scale,
+        pairSide: o.pileSide || null,
       });
       const result = FindIt.layout.placePass(measured, canvas.width / 2, {
         cx: canvas.width / 2,
@@ -294,6 +313,7 @@
     CANVAS_SIZE,
     DISPLAY_SIZE,
     TINTS,
+    PILE_BORDER,
     imageCache,
     loadImage,
     setupCanvas,

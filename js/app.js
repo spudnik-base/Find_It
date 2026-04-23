@@ -264,7 +264,13 @@
     }
     wrap.hidden = false;
 
-    const deck = FindIt.deck.buildDeck(content.symbols, content.symbolsPerCard);
+    let deck;
+    try {
+      deck = FindIt.deck.buildDeck(content.symbols, content.symbolsPerCard);
+    } catch {
+      wrap.hidden = true;
+      return;
+    }
     // Pick two cards that share a real symbol (not a blank) if possible, so
     // the 'every pair shares one' claim lands visually.
     let a = 0, b = 1;
@@ -279,6 +285,8 @@
       }
     }
 
+    const twoPile = FindIt.deck.isTwoPileMode(content.symbols);
+
     const canvases = wrap.querySelectorAll('canvas');
     if (canvases.length < 2) return;
     await Promise.all([
@@ -288,6 +296,7 @@
         shape: state.cardShape,
         sizeVariance: content.sizeVariance,
         symbolsPerCard: content.symbolsPerCard,
+        pileSide: twoPile ? 'Q' : null,
       }),
       FindIt.renderer.renderCard(canvases[1], deck.cards[b], {
         size: 640, display: false,
@@ -295,12 +304,15 @@
         shape: state.cardShape,
         sizeVariance: content.sizeVariance,
         symbolsPerCard: content.symbolsPerCard,
+        pileSide: twoPile ? 'A' : null,
       }),
     ]);
 
     if (caption) {
-      caption.textContent = (content.setName || 'Your deck') +
-        ' · ' + deck.cards.length + ' cards, ' + content.symbolsPerCard + ' symbols per card';
+      const countPart = twoPile
+        ? deck.cards.length + ' cards per pile · ' + (deck.cards.length * 2) + ' total (Q/A)'
+        : deck.cards.length + ' cards, ' + content.symbolsPerCard + ' symbols per card';
+      caption.textContent = (content.setName || 'Your deck') + ' · ' + countPart;
     }
   }
 
@@ -569,6 +581,19 @@
         label.className = 'chip-value';
         label.textContent = sym.display || 'image';
         chip.appendChild(label);
+      } else if (sym.type === 'pair') {
+        const q = document.createElement('span');
+        q.className = 'chip-value';
+        q.innerHTML = FindIt.layout.richToHTML(sym.value);
+        chip.appendChild(q);
+        const eq = document.createElement('span');
+        eq.className = 'chip-display';
+        eq.textContent = '=';
+        chip.appendChild(eq);
+        const a = document.createElement('span');
+        a.className = 'chip-value';
+        a.innerHTML = FindIt.layout.richToHTML(sym.pairValue);
+        chip.appendChild(a);
       } else {
         const label = document.createElement('span');
         label.className = 'chip-value';
@@ -779,6 +804,7 @@
     previewIndices: [],
     selected: [],
     rebuildTimer: null,
+    twoPile: false,
   };
 
   function initPreview() {
@@ -808,11 +834,36 @@
     const grid = document.getElementById('previewGrid');
     if (!grid) return;
 
-    const deck = FindIt.deck.buildDeck(s.symbols, s.symbolsPerCard);
+    let deck;
+    try {
+      deck = FindIt.deck.buildDeck(s.symbols, s.symbolsPerCard);
+    } catch (err) {
+      state.deck = null;
+      state.twoPile = false;
+      state.previewIndices = [];
+      state.selected = [];
+      grid.innerHTML = '';
+      renderDropsBar({ blanksAdded: 0, droppedSymbols: [] }, err.message);
+      return;
+    }
     state.deck = deck;
     state.previewIndices = pickPreviewIndices(deck.cards.length);
     state.selected = [];
-    renderDropsBar(deck);
+    state.twoPile = FindIt.deck.isTwoPileMode(s.symbols);
+
+    const hasPair = s.symbols.some((x) => x && x.type === 'pair');
+    const hasNonPair = s.symbols.some((x) => x && x.type !== 'pair' && !x.isBlank);
+    let note = null;
+    if (state.twoPile) {
+      note = deck.cards.length + ' cards per pile · ' +
+        (deck.cards.length * 2) + ' total · Q/A two-pile mode';
+    } else if (hasPair && hasNonPair) {
+      note = 'Q/A two-pile mode is off: your set mixes Q&A pairs with plain ' +
+        'symbols. Plain symbols would render identically on both piles, so ' +
+        'not every match would be Q↔A. Remove the plain entries (or the ' +
+        'pairs) to re-enable two-pile mode.';
+    }
+    renderDropsBar(deck, note);
 
     grid.innerHTML = '';
     const frag = document.createDocumentFragment();
@@ -852,6 +903,7 @@
       sizeVariance: content.sizeVariance,
       symbolsPerCard: content.symbolsPerCard,
       highlightId: o.highlightId,
+      pileSide: state.twoPile ? 'Q' : null,
     });
     if (result && result.dropped && result.dropped.length) {
       console.warn(
@@ -861,10 +913,11 @@
     }
   }
 
-  function renderDropsBar(deck) {
+  function renderDropsBar(deck, note) {
     const bar = document.getElementById('dropsBar');
     if (!bar) return;
     const pieces = [];
+    if (note) pieces.push(note);
     if (deck.blanksAdded > 0) {
       pieces.push(
         deck.blanksAdded + ' blank placeholder(s) added. Add ' + deck.blanksAdded + ' more symbols for a full set.'
@@ -946,6 +999,10 @@
       badge.textContent = 'MATCH ✓';
       if (shared.isBlank) {
         text.textContent = '(shared blank placeholder)';
+      } else if (shared.type === 'pair') {
+        text.innerHTML = 'shared: ' +
+          FindIt.layout.richToHTML(shared.value) + ' = ' +
+          FindIt.layout.richToHTML(shared.pairValue);
       } else {
         text.innerHTML = 'shared: ' +
           FindIt.layout.richToHTML(shared.display || shared.value || 'image');
@@ -977,7 +1034,8 @@
     setStatus('Building deck…');
     try {
       const result = await FindIt.exporter.printDeck({ shape: state.cardShape, size: state.printSize });
-      setStatus('Opened print dialog for ' + result.cards + ' cards.');
+      const pileNote = result.twoPile ? ' (Q + A piles)' : '';
+      setStatus('Opened print dialog for ' + result.cards + ' cards' + pileNote + '.');
     } catch (err) {
       console.error(err);
       setStatus('Print failed: ' + err.message);
@@ -996,8 +1054,9 @@
     setStatus('Building PDF…');
     try {
       const result = await FindIt.exporter.downloadPDF({ shape: state.cardShape, size: state.printSize });
-      setStatus('Downloaded ' + result.filename + ' (' + result.cards + ' cards).');
-      toast('PDF saved: ' + result.filename);
+      const pileNote = result.twoPile ? ' · Q + A piles' : '';
+      setStatus('Downloaded ' + result.filename + ' (' + result.cards + ' cards' + pileNote + ').');
+      toast('PDF saved: ' + result.filename + (result.twoPile ? ' (Q + A)' : ''));
     } catch (err) {
       console.error(err);
       setStatus('PDF failed: ' + err.message);
