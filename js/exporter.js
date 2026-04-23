@@ -30,7 +30,7 @@
   // ── lazy loader for jsPDF ──────────────────────────────────────────────
   // We only pull the ~100KB library when the user clicks the PDF download
   // button, so initial page load stays dependency-free.
-  const JSPDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  const JSPDF_URL = 'js/jspdf.umd.min.js';
   let jsPDFLoader = null;
   function ensureJsPDF() {
     if (jsPDFLoader) return jsPDFLoader;
