@@ -266,6 +266,11 @@
     // Every symbol on a Dobble card is the pair-mate with some other card,
     // so silently dropping one breaks the "every pair shares exactly one"
     // invariant for all n cards that share it. Shrink until everything fits.
+    //
+    // In Q/A pile mode the drawn card border is 16px instead of 6px, which
+    // pushes its inner edge 5 extra pixels inward. Pad the layout's usable
+    // disc by that much so pills can't end up under the coloured ring.
+    const placeBorder = o.pileSide ? 24 : 14;
     const SHRINK_STEPS = [1.0, 0.85, 0.72, 0.6, 0.5, 0.42];
     let placed, dropped;
     for (const scale of SHRINK_STEPS) {
@@ -278,6 +283,7 @@
       const result = FindIt.layout.placePass(measured, canvas.width / 2, {
         cx: canvas.width / 2,
         cy: canvas.height / 2,
+        border: placeBorder,
       });
       placed = result.placed;
       dropped = result.dropped;
