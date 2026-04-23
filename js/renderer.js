@@ -246,14 +246,25 @@
     const ctx = setupCanvas(canvas, o);
     drawCardBackground(ctx, { size: canvas.width, tint: o.tint, shape: o.shape });
 
-    const measured = FindIt.layout.measurePass(ctx, cardSymbols, {
-      sizeVariance: o.sizeVariance,
-      symbolsPerCard: o.symbolsPerCard,
-    });
-    const { placed, dropped } = FindIt.layout.placePass(measured, canvas.width / 2, {
-      cx: canvas.width / 2,
-      cy: canvas.height / 2,
-    });
+    // Every symbol on a Dobble card is the pair-mate with some other card,
+    // so silently dropping one breaks the "every pair shares exactly one"
+    // invariant for all n cards that share it. Shrink until everything fits.
+    const SHRINK_STEPS = [1.0, 0.85, 0.72, 0.6, 0.5, 0.42];
+    let placed, dropped;
+    for (const scale of SHRINK_STEPS) {
+      const measured = FindIt.layout.measurePass(ctx, cardSymbols, {
+        sizeVariance: o.sizeVariance,
+        symbolsPerCard: o.symbolsPerCard,
+        scale,
+      });
+      const result = FindIt.layout.placePass(measured, canvas.width / 2, {
+        cx: canvas.width / 2,
+        cy: canvas.height / 2,
+      });
+      placed = result.placed;
+      dropped = result.dropped;
+      if (dropped.length === 0) break;
+    }
 
     // Draw symbols. Images drawn first (async), then words on top.
     const drawJobs = [];
