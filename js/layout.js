@@ -145,8 +145,9 @@
     const wordFont = o.wordFont || 'bold 34px Nunito, sans-serif';
     const sizeVariance = Math.max(1, Math.min(3, o.sizeVariance || 2.0));
     const defaults = o.symbolsPerCard ? baseSizesForN(o.symbolsPerCard) : { wordBase: 34, imageBase: 120 };
-    const wordBase = o.wordBase || defaults.wordBase;
-    const imageBase = o.imageBase || defaults.imageBase;
+    const scale = o.scale == null ? 1 : o.scale;
+    const wordBase = (o.wordBase || defaults.wordBase) * scale;
+    const imageBase = (o.imageBase || defaults.imageBase) * scale;
 
     ctx.save();
     ctx.font = wordFont;
